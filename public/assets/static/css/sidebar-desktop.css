@@ -1,0 +1,79 @@
+@media (min-width: 1200px) {
+  #sidebar,
+  #sidebar .sidebar-wrapper,
+  #sidebar ~ #main {
+    transition: all 0.3s ease;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper {
+    width: 80px;
+    left: 0;
+    overflow: visible;
+  }
+
+  #sidebar.sidebar-icon-only ~ #main {
+    margin-left: 80px;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-header,
+  #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-title,
+  #sidebar.sidebar-icon-only .sidebar-wrapper .submenu {
+    display: none !important;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-item {
+    position: relative;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-link {
+    justify-content: center;
+    padding: 0.75rem 0;
+    width: 100%;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-link span,
+  #sidebar.sidebar-icon-only .sidebar-wrapper .submenu-link {
+    display: none !important;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-item.has-sub > .sidebar-link::after {
+    display: none !important;
+  }
+
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-header,
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-title,
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only .sidebar-wrapper .submenu {
+    display: none !important;
+  }
+
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-item.has-sub > .sidebar-link::after {
+    display: none !important;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .menu .sidebar-link i,
+  #sidebar.sidebar-icon-only .sidebar-wrapper .menu .sidebar-link svg {
+    margin: 0;
+    font-size: 1.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: block;
+  }
+
+  #sidebar.sidebar-icon-only .sidebar-wrapper .menu .sidebar-link i:before {
+    vertical-align: middle;
+  }
+
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only .sidebar-wrapper {
+    width: 80px;
+    left: 0;
+    overflow: visible;
+  }
+
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only ~ #main {
+    margin-left: 80px;
+  }
+
+  html[data-bs-theme="dark"] #sidebar.sidebar-icon-only .sidebar-wrapper .sidebar-link {
+    justify-content: center;
+  }
+}

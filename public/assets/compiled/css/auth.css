@@ -1,0 +1,28 @@
+body{background-color:var(--bs-body-bg)}
+#auth{height:100vh;overflow-x:hidden}
+#auth #auth-right{height:100%;background:url(./png/4853433.png),linear-gradient(90deg,#2d499d,#3f5491)}
+#auth #auth-left{padding:5rem}
+#auth #auth-left .auth-title{font-size:4rem;margin-bottom:1rem}
+#auth #auth-left .auth-subtitle{font-size:1.7rem;line-height:2.5rem;color:#a8aebb}
+#auth #auth-left .auth-logo{margin-bottom:7rem}
+#auth #auth-left .auth-logo img{height:2rem}
+@media screen and (max-width: 1399.9px){
+  #auth #auth-left{padding:3rem}
+}
+@media screen and (max-width: 767px){
+  #auth #auth-left{padding:5rem}
+}
+@media screen and (max-width: 576px){
+  #auth #auth-left{padding:5rem 3rem}
+}
+html[data-bs-theme=dark] #auth-right{background:url(./png/4853433.png),linear-gradient(90deg,#2d499d,#3f5491)}
+body.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bs-body-bg)}
+.login-wrapper{width:100%;max-width:360px;padding:1rem}
+.login-card{background-color:var(--bs-body-bg);border:1px solid rgba(0,0,0,.05);box-shadow:0 12px 30px -14px rgba(25,42,70,.25);border-radius:.9rem;padding:2rem}
+.login-logo{height:38px}
+.login-title{font-size:1.5rem;font-weight:700;margin-bottom:.4rem;color:var(--bs-body-color)}
+.login-subtitle{color:var(--bs-secondary-color);margin-bottom:1.5rem;font-size:.9rem}
+.login-form .form-label{font-weight:600;color:var(--bs-body-color);font-size:.9rem}
+.login-form .form-control{padding:.55rem .8rem;border-radius:.65rem}
+.login-form .btn{border-radius:.65rem;font-weight:600;padding:.6rem 1rem}
+.alert .bi{font-size:1.1rem}
