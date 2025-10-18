@@ -1,122 +1,115 @@
 @extends('layouts.app')
 
-@push('styles')
-    <link rel="stylesheet" href=" {{ asset('assets/extensions/choices.js/public/assets/styles/choices.css') }}">
-@endpush
+@section('title', 'Tambah Menu')
 
 @section('content')
-    <div class="page-heading">
-        <h3>Tambah Menu Baru</h3>
-    </div>
-    <div class="page-content">
-        <div class="card">
-            <div class="card-body">
-                <form action="{{ route('menus.store') }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="name">Nama Menu</label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name') }}" required>
-                                @error('name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="parent_id">Induk Menu (Parent)</label>
-                                <select class="form-select @error('parent_id') is-invalid @enderror" id="parent_id"
-                                    name="parent_id">
-                                    <option value="">-- Tidak Ada Induk --</option>
-                                    @foreach ($parentMenus as $parent)
-                                        <option value="{{ $parent->id }}"
-                                            {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
-                                            {{ $parent->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('parent_id')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="route_name">Route Name</label>
-                                <input type="text" class="form-control @error('route_name') is-invalid @enderror"
-                                    id="route_name" name="route_name" value="{{ old('route_name') }}">
-                                <small class="form-text text-muted">Kosongkan jika ini adalah menu induk (parent).</small>
-                                @error('route_name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="icon-select">Ikon</label>
-                                <select class="choices form-select @error('icon') is-invalid @enderror" id="icon-select"
-                                    name="icon">
-                                    <option value="">-- Pilih Ikon --</option>
-                                    @foreach ($icons as $icon)
-                                        <option value="{{ $icon }}" {{ old('icon') == $icon ? 'selected' : '' }}>
-                                            <i class="{{ $icon }}"></i> {{ $icon }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('icon')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group">
-                                <label for="order">Urutan Tampil</label>
-                                <input type="number" class="form-control @error('order') is-invalid @enderror"
-                                    id="order" name="order" value="{{ old('order', 0) }}" required>
-                                @error('order')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        <a href="{{ route('menus.index') }}" class="btn btn-light">Kembali</a>
-                    </div>
-                </form>
+    <div class="space-y-6">
+        <div class="flex items-baseline justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Tambah Menu Baru</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Definisikan menu baru beserta hierarki dan urutan tampilnya.
+                </p>
             </div>
+            <a href="{{ route('menus.index') }}"
+                class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-brand-200 hover:text-brand-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:text-brand-400">
+                Kembali
+            </a>
+        </div>
+
+        <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-theme-sm dark:border-gray-800 dark:bg-gray-950/70">
+            <form action="{{ route('menus.store') }}" method="POST" class="space-y-8">
+                @csrf
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Nama Menu
+                            </label>
+                            <input type="text" id="name" name="name" value="{{ old('name') }}"
+                                class="mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                required>
+                            @error('name')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="parent_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Induk Menu (Parent)
+                            </label>
+                            <select id="parent_id" name="parent_id"
+                                class="mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                <option value="">Tidak ada induk</option>
+                                @foreach ($parentMenus as $parent)
+                                    <option value="{{ $parent->id }}" @selected(old('parent_id') == $parent->id)>
+                                        {{ $parent->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('parent_id')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="route_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Route Name
+                            </label>
+                            <input type="text" id="route_name" name="route_name" value="{{ old('route_name') }}"
+                                class="mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                Kosongkan jika menu ini adalah induk yang tidak memiliki route.
+                            </p>
+                            @error('route_name')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="icon" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Ikon
+                            </label>
+                            <select id="icon" name="icon"
+                                class="mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                <option value="">Tanpa ikon</option>
+                                @foreach ($icons as $icon)
+                                    <option value="{{ $icon }}" @selected(old('icon') == $icon)>{{ $icon }}</option>
+                                @endforeach
+                            </select>
+                            @error('icon')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="order" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Urutan Tampil
+                            </label>
+                            <input type="number" id="order" name="order" value="{{ old('order', 0) }}"
+                                class="mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                required>
+                            @error('order')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:ring-offset-gray-950">
+                        Simpan Menu
+                    </button>
+                    <a href="{{ route('menus.index') }}"
+                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:border-brand-200 hover:text-brand-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:text-brand-400">
+                        Batal
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
-
-@push('scripts')
-
-    <script src="{{ asset('assets/extensions/choices.js/public/assets/scripts/choices.js') }}"></script>
-    <script>
-        let choices = document.querySelectorAll(".choices")
-        let initChoice
-        for (let i = 0; i < choices.length; i++) {
-            if (choices[i].classList.contains("multiple-remove")) {
-                initChoice = new Choices(choices[i], {
-                    delimiter: ",",
-                    editItems: true,
-                    maxItemCount: -1,
-                    removeItemButton: true,
-                })
-            } else {
-                initChoice = new Choices(choices[i])
-            }
-        }
-    </script>
-@endpush

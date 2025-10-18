@@ -1,128 +1,184 @@
-<div id="sidebar">
-    <div class="sidebar-wrapper active">
-        <div class="sidebar-header position-relative">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="logo">
-                    <a href="{{ route('dashboard') }}"><img src="{{ asset('assets/compiled/svg/logo.svg') }}" alt="Logo"
-                            srcset=""></a>
-                </div>
-                <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="20"
-                        height="20" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
-                        <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path
-                                d="M10.5 14.5c2.219 0 4-1.763 4-3.982a4.003 4.003 0 0 0-4-4.018c-2.219 0-4 1.781-4 4c0 2.219 1.781 4 4 4zM4.136 4.136L5.55 5.55m9.9 9.9l1.414 1.414M1.5 10.5h2m14 0h2M4.135 16.863L5.55 15.45m9.899-9.9l1.414-1.415M10.5 19.5v-2m0-14v-2"
-                                opacity=".3"></path>
-                            <g transform="translate(-210 -1)">
-                                <path d="M220.5 2.5v2m6.5.5l-1.5 1.5"></path>
-                                <circle cx="220.5" cy="11.5" r="4"></circle>
-                                <path d="m214 5l1.5 1.5m5 14v-2m6.5-.5l-1.5-1.5M214 18l1.5-1.5m-4-5h2m14 0h2">
-                                </path>
-                            </g>
-                        </g>
-                    </svg>
-                    <div class="form-check form-switch fs-6">
-                        <input class="form-check-input  me-0" type="checkbox" id="toggle-dark" style="cursor: pointer">
-                        <label class="form-check-label"></label>
-                    </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        aria-hidden="true" role="img" class="iconify iconify--mdi" width="20" height="20"
-                        preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                            d="m17.75 4.09l-2.53 1.94l.91 3.06l-2.63-1.81l-2.63 1.81l.91-3.06l-2.53-1.94L12.44 4l1.06-3l1.06 3l3.19.09m3.5 6.91l-1.64 1.25l.59 1.98l-1.7-1.17l-1.7 1.17l.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95l2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85c-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14c.4-.4.82-.76 1.27-1.08c.75-.53 1.93.36 1.85 1.19c-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82c-2.81 3.14-2.7 7.96.31 10.98c3.02 3.01 7.84 3.12 10.98.31Z">
-                        </path>
-                    </svg>
-                </div>
-                <div class="sidebar-toggler  x">
-                    <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
-                </div>
-            </div>
-        </div>
+@php
+    use Illuminate\Support\Facades\Route;
+    use Illuminate\Support\Str;
 
-        <div class="sidebar-menu">
-            <ul class="menu">
-                <li class="sidebar-title">Menu</li>
+    $menus = ($sidebarMenus ?? collect())->filter();
+    if (! $menus instanceof \Illuminate\Support\Collection) {
+        $menus = collect($menus);
+    }
 
-                @if (isset($sidebarMenus) && $sidebarMenus->count() > 0)
-                    @foreach ($sidebarMenus as $menu)
-                        {{-- Cek apakah menu punya sub-menu --}}
-                        @if ($menu->children->isNotEmpty())
-                            @php
-                                // Ambil semua nama route dari anak-anaknya dan buat polanya
-                                $childRoutePatterns = $menu->children
-                                    ->pluck('route_name')
-                                    ->filter() // Hapus null/empty
-                                    ->map(fn($routeName) => explode('.', $routeName)[0] . '.*')
-                                    ->unique()
-                                    ->toArray();
-                            @endphp
-                            <li class="sidebar-item has-sub {{ Route::is($childRoutePatterns) ? 'active' : '' }}">
-                                <a href="#" class='sidebar-link' title="{{ $menu->name }}">
-                                    <i class="{{ $menu->icon }}"></i>
-                                    <span>{{ $menu->name }}</span>
-                                </a>
-                                <ul class="submenu {{ Route::is($childRoutePatterns) ? 'active' : '' }}">
-                                    @foreach ($menu->children->sortBy('order') as $submenu)
-                                        @if ($submenu->route_name)
-                                            @php
-                                                // Ambil nama dasar rute untuk submenu, contoh: 'users' dari 'users.index'
-                                                $baseRoute = explode('.', $submenu->route_name)[0];
-                                                $submenuRouteExists = Route::has($submenu->route_name);
-                                            @endphp
-                                            <li class="submenu-item {{ Route::is($baseRoute . '.*') ? 'active' : '' }}">
-                                                <a href="{{ $submenuRouteExists ? route($submenu->route_name) : '#' }}"
-                                                    class="submenu-link" title="{{ $submenu->name }}">
-                                                    {{ $submenu->name }}
-                                                </a>
-                                            </li>
-                                        @endif
+    $hasDynamicMenus = $menus->count() > 0;
+
+    if (! $hasDynamicMenus) {
+        $fallbackData = collect([
+            ['name' => 'Dashboard', 'route_name' => Route::has('dashboard') ? 'dashboard' : null],
+            ['name' => 'Orders', 'route_name' => Route::has('orders.index') ? 'orders.index' : null],
+            ['name' => 'Users', 'route_name' => Route::has('users.index') ? 'users.index' : null],
+            ['name' => 'Roles', 'route_name' => Route::has('roles.index') ? 'roles.index' : null],
+            ['name' => 'Permissions', 'route_name' => Route::has('permissions.index') ? 'permissions.index' : null],
+            ['name' => 'Menus', 'route_name' => Route::has('menus.index') ? 'menus.index' : null],
+            ['name' => 'Products', 'route_name' => Route::has('products.index') ? 'products.index' : null],
+            ['name' => 'Categories', 'route_name' => Route::has('categories.index') ? 'categories.index' : null],
+            ['name' => 'Audit Logs', 'route_name' => Route::has('audit-logs.index') ? 'audit-logs.index' : null],
+        ])->filter(fn ($item) => filled($item['route_name']));
+
+        $menus = $fallbackData->values()->map(function ($item, $index) {
+            return (object) [
+                'name' => $item['name'],
+                'route_name' => $item['route_name'],
+                'icon' => null,
+                'children' => collect(),
+                'order' => $index,
+            ];
+        });
+    }
+
+    $makeInitials = static fn ($name) => Str::of($name)->replaceMatches('/[^A-Za-z0-9]/', '')->substr(0, 2)->upper();
+@endphp
+
+<aside :class="sidebarToggle ? 'translate-x-0 lg:w-[90px]' : '-translate-x-full'"
+    class="sidebar fixed left-0 top-0 z-[9999] flex h-screen w-[290px] flex-col overflow-hidden border-r border-gray-200 bg-white px-5 transition-transform duration-300 ease-in-out dark:border-gray-800 dark:bg-black lg:static lg:translate-x-0">
+    <div :class="sidebarToggle ? 'justify-center' : 'justify-between'"
+        class="flex items-center gap-2 pt-8 pb-7">
+        <a href="{{ Route::has('dashboard') ? route('dashboard') : '#' }}" class="flex items-center gap-3">
+            <span class="logo" :class="sidebarToggle ? 'lg:hidden' : ''">
+                <img class="h-8 dark:hidden" src="{{ asset('assets/tailadmin/images/logo/logo.svg') }}" alt="Logo">
+                <img class="hidden h-8 dark:block" src="{{ asset('assets/tailadmin/images/logo/logo-dark.svg') }}"
+                    alt="Logo">
+            </span>
+            <img class="logo-icon h-8" :class="sidebarToggle ? 'hidden lg:block' : 'hidden'"
+                src="{{ asset('assets/tailadmin/images/logo/logo-icon.svg') }}" alt="Logo icon">
+        </a>
+    </div>
+
+    <div class="flex flex-1 flex-col overflow-y-auto pb-6 no-scrollbar">
+        <nav>
+            <div>
+                <h3 class="mb-4 text-xs uppercase leading-5 text-gray-400">
+                    <span class="menu-group-title" :class="sidebarToggle ? 'lg:hidden' : ''">Menu</span>
+                    <svg :class="sidebarToggle ? 'lg:block hidden' : 'hidden'"
+                        class="mx-auto fill-current menu-group-icon" width="24" height="24" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z"
+                            fill="currentColor" />
+                    </svg>
+                </h3>
+
+                <ul class="flex flex-col gap-2">
+                    @foreach ($menus as $menu)
+                        @php
+                            $menuChildren = $menu->children instanceof \Illuminate\Support\Collection ? $menu->children->sortBy('order') : collect();
+                            $hasChildren = $menuChildren->isNotEmpty();
+                            $baseRoute = filled($menu->route_name ?? null) ? Str::before($menu->route_name, '.') : null;
+                            $childRoutes = $menuChildren->pluck('route_name')->filter();
+                            $patterns = collect([$menu->route_name ?? null, $baseRoute ? "{$baseRoute}.*" : null])
+                                ->merge($childRoutes)
+                                ->merge($childRoutes->map(fn ($child) => Str::before($child, '.') . '.*'))
+                                ->filter()
+                                ->unique()
+                                ->values()
+                                ->all();
+                            $isActive = ! empty($patterns) ? Route::is($patterns) : false;
+                            $menuLink = filled($menu->route_name ?? null) && Route::has($menu->route_name)
+                                ? route($menu->route_name)
+                                : '#';
+                            $menuInitials = $makeInitials($menu->name ?? 'Menu');
+                        @endphp
+
+                        @if ($hasChildren)
+                            <li x-data="{ open: {{ $isActive ? 'true' : 'false' }} }">
+                                <button type="button"
+                                    class="menu-item group w-full text-left {{ $isActive ? 'menu-item-active' : 'menu-item-inactive' }}"
+                                    @click="open = !open">
+                                    <span
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-xs font-semibold uppercase text-gray-500 group-hover:border-brand-200 group-hover:text-brand-500 dark:border-gray-800 dark:text-gray-400 dark:group-hover:text-brand-400">
+                                        {{ $menuInitials }}
+                                    </span>
+                                    <span class="menu-item-text" :class="sidebarToggle ? 'lg:hidden' : ''">
+                                        {{ $menu->name }}
+                                    </span>
+                                    <svg class="menu-item-arrow {{ $isActive ? 'menu-item-arrow-active' : 'menu-item-arrow-inactive' }}"
+                                        :class="open ? 'menu-item-arrow-active' : 'menu-item-arrow-inactive'"
+                                        width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 8L10 11L13 8" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <ul x-show="open" x-transition
+                                    class="menu-dropdown flex-col gap-1 pl-12"
+                                    :class="sidebarToggle ? 'lg:hidden flex' : 'flex'">
+                                    @foreach ($menuChildren as $child)
+                                        @php
+                                            $childBase = filled($child->route_name ?? null) ? Str::before($child->route_name, '.') : null;
+                                            $childPatterns = collect([$child->route_name ?? null, $childBase ? "{$childBase}.*" : null])->filter()->all();
+                                            $childActive = ! empty($childPatterns) ? Route::is($childPatterns) : false;
+                                            $childLink = filled($child->route_name ?? null) && Route::has($child->route_name)
+                                                ? route($child->route_name)
+                                                : '#';
+                                        @endphp
+                                        <li>
+                                            <a href="{{ $childLink }}"
+                                                class="menu-dropdown-item {{ $childActive ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive' }}">
+                                                {{ $child->name }}
+                                            </a>
+                                        </li>
                                     @endforeach
                                 </ul>
                             </li>
                         @else
-                            {{-- Jika ini menu biasa (tanpa sub-menu) --}}
-                            @if ($menu->route_name)
-                                @php
-                                    // Ambil nama dasar rute, contoh: 'dashboard' dari 'dashboard'
-                                    $baseRoute = explode('.', $menu->route_name)[0];
-                                    $menuRouteExists = Route::has($menu->route_name);
-                                @endphp
-                                <li class="sidebar-item {{ Route::is($baseRoute . '.*') ? 'active' : '' }}">
-                                    <a href="{{ $menuRouteExists ? route($menu->route_name) : '#' }}" class='sidebar-link'
-                                        title="{{ $menu->name }}">
-                                        <i class="{{ $menu->icon }}"></i>
-                                        <span>{{ $menu->name }}</span>
-                                    </a>
-                                </li>
-                            @endif
+                            <li>
+                                <a href="{{ $menuLink }}"
+                                    class="menu-item group {{ $isActive ? 'menu-item-active' : 'menu-item-inactive' }}">
+                                    <span
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-xs font-semibold uppercase text-gray-500 group-hover:border-brand-200 group-hover:text-brand-500 dark:border-gray-800 dark:text-gray-400 dark:group-hover:text-brand-400">
+                                        {{ $menuInitials }}
+                                    </span>
+                                    <span class="menu-item-text" :class="sidebarToggle ? 'lg:hidden' : ''">
+                                        {{ $menu->name }}
+                                    </span>
+                                </a>
+                            </li>
                         @endif
                     @endforeach
-                @endif
+                </ul>
+            </div>
 
-                <li class="sidebar-title">Akun</li>
-                <li class="sidebar-item {{ Route::is('profile.edit') ? 'active' : '' }}">
-                    <a href="{{ route('profile.edit') }}" class='sidebar-link' title="Profile">
-                        <i class="bi bi-person"></i>
-                        <span>Profile</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                        class='sidebar-link' title="Logout">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Logout</span>
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                </li>
-
-
-            </ul>
-        </div>
-
-
+            <div class="mt-8">
+                <h3 class="mb-4 text-xs uppercase leading-5 text-gray-400">
+                    <span class="menu-group-title" :class="sidebarToggle ? 'lg:hidden' : ''">Account</span>
+                </h3>
+                <ul class="flex flex-col gap-2">
+                    @if (Route::has('profile.edit'))
+                        <li>
+                            <a href="{{ route('profile.edit') }}"
+                                class="menu-item group {{ Route::is('profile.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+                                <span
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-xs font-semibold uppercase text-gray-500 group-hover:border-brand-200 group-hover:text-brand-500 dark:border-gray-800 dark:text-gray-400 dark:group-hover:text-brand-400">
+                                    PR
+                                </span>
+                                <span class="menu-item-text" :class="sidebarToggle ? 'lg:hidden' : ''">Profile</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (Route::has('logout'))
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}"
+                                class="menu-item group menu-item-inactive">
+                                @csrf
+                                <button type="submit" class="flex w-full items-center gap-3">
+                                    <span
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-xs font-semibold uppercase text-gray-500 group-hover:border-brand-200 group-hover:text-brand-500 dark:border-gray-800 dark:text-gray-400 dark:group-hover:text-brand-400">
+                                        LO
+                                    </span>
+                                    <span class="menu-item-text" :class="sidebarToggle ? 'lg:hidden' : ''">Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    @endif
+                </ul>
+            </div>
+        </nav>
     </div>
-</div>
+</aside>

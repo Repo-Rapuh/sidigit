@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      target: production
+    image: sidigit-app:latest
+    env_file:
+      - ./docker/.env.production
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    restart: unless-stopped
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_cache:/var/www/html/bootstrap/cache
+    networks:
+      - sidigit
+
+  web:
+    build:
+      context: .
+      target: nginx
+    image: sidigit-nginx:latest
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_cache:/var/www/html/bootstrap/cache
+    networks:
+      - sidigit
+
+  queue:
+    build:
+      context: .
+      target: production
+    image: sidigit-app:latest
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    env_file:
+      - ./docker/.env.production
+    restart: unless-stopped
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_cache:/var/www/html/bootstrap/cache
+    networks:
+      - sidigit
+    depends_on:
+      app:
+        condition: service_started
+
+  horizon:
+    build:
+      context: .
+      target: production
+    image: sidigit-app:latest
+    command: php artisan horizon
+    env_file:
+      - ./docker/.env.production
+    restart: unless-stopped
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_cache:/var/www/html/bootstrap/cache
+    networks:
+      - sidigit
+    depends_on:
+      app:
+        condition: service_started
+
+volumes:
+  app_storage:
+  app_cache:
+
+networks:
+  sidigit:
+    driver: bridge
