@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\BankAccountController;
+use App\Http\Controllers\Admin\CustomerController;
 
 
 
@@ -37,6 +38,7 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     Route::resource('bank-accounts', BankAccountController::class)->except('show');
+    Route::resource('customers', CustomerController::class)->except('show');
 
 
     // --- RUTE BARU UNTUK MANAJEMEN AKSES ---
