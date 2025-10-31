@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\MaterialController;
+use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\BankAccountController;
@@ -57,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('units', UnitController::class)->except('show');
     Route::resource('suppliers', SupplierController::class)->except('show');
     Route::resource('materials', MaterialController::class)->except('show');
+    Route::resource('warehouses', WarehouseController::class)->except('show');
     // -----------------------------------------
 
 
