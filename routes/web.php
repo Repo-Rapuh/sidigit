@@ -12,9 +12,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\BankAccountController;
 use App\Http\Controllers\Admin\CustomerController;
-
-
-
+use App\Http\Controllers\Admin\EmployeeController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -37,9 +35,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('bank-accounts', BankAccountController::class)->except('show');
     Route::resource('customers', CustomerController::class)->except('show');
-    Route::controller('/customers', CustomerController::class)->name('customers.')->group(function() {
-
-    });
+    Route::resource('employees', EmployeeController::class)->except('show');
 
 
     // --- RUTE BARU UNTUK MANAJEMEN AKSES ---

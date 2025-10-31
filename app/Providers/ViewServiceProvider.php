@@ -36,8 +36,22 @@ class ViewServiceProvider extends ServiceProvider
                     return $role->menus;
                 })->unique('id');
 
-                // Filter hanya menu utama & urutkan
-                $sidebarMenus = $menus->whereNull('parent_id')->sortBy('order');
+                $assignedMenuIds = $menus->pluck('id')->all();
+
+                $sidebarMenus = $menus
+                    ->whereNull('parent_id')
+                    ->sortBy('order')
+                    ->map(function ($menu) use ($assignedMenuIds) {
+                        $filteredChildren = collect($menu->children ?? [])
+                            ->filter(fn ($child) => in_array($child->id, $assignedMenuIds, true))
+                            ->sortBy('order')
+                            ->values();
+
+                        $menu->setRelation('children', $filteredChildren);
+
+                        return $menu;
+                    })
+                    ->values();
             }
 
             $view->with('sidebarMenus', $sidebarMenus);
