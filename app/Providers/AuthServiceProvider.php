@@ -44,6 +44,7 @@ class AuthServiceProvider extends ServiceProvider
             }
         } catch (\Exception $e) {
             // Menangani error jika tabel permission belum ada (misalnya saat migrasi awal)
+            report($e);
             return;
         }
     }
