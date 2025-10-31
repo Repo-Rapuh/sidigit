@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\BankAccountController;
@@ -51,6 +52,7 @@ Route::middleware('auth')->group(function () {
     // --- RUTE BARU UNTUK MANAJEMEN Barang ---
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('units', UnitController::class)->except('show');
     // -----------------------------------------
 
 
