@@ -4,6 +4,14 @@
     $selectedCategory = old('category_id', optional($product)->category_id);
     $selectedUnit = old('unit_id', optional($product)->unit_id);
     $selectedUnit = $selectedUnit !== null ? (string) $selectedUnit : null;
+    $dimensionUnitNames = ['cm'];
+    $unitDimensionMap = $units->mapWithKeys(function ($unit) use ($dimensionUnitNames) {
+        $name = is_object($unit) ? $unit->name : ($unit['name'] ?? '');
+        return [
+            (string) (is_object($unit) ? $unit->id : $unit['id']) => in_array(strtolower($name), $dimensionUnitNames, true),
+        ];
+    });
+    $showDimensionFields = $selectedUnit && ($unitDimensionMap[$selectedUnit] ?? false);
     $initialMaterialIds = $product
         ? $product->productMaterials->pluck('material_id')->map(fn ($id) => (string) $id)->toArray()
         : [];
@@ -109,7 +117,7 @@
                     <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
                 @enderror
             </div>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div id="dimension-fields" class="grid grid-cols-1 gap-5 lg:grid-cols-2 {{ $showDimensionFields ? '' : 'hidden' }}">
                 <div>
                     <label for="length_cm" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Panjang (cm)
@@ -214,21 +222,21 @@
                     <p class="mt-2 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
                 @enderror
             </div>
-        </div>
-    </div>
 
-    <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Deskripsi Produk (Opsional)
-        </label>
-        <textarea id="description" name="description" rows="6"
-            @class([
-                'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
-                'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('description'),
-            ])>{{ old('description', optional($product)->description) }}</textarea>
-        @error('description')
-            <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
-        @enderror
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Deskripsi Produk (Opsional)
+                </label>
+                <textarea id="description" name="description" rows="6"
+                    @class([
+                        'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                        'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('description'),
+                    ])>{{ old('description', optional($product)->description) }}</textarea>
+                @error('description')
+                    <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
     </div>
 </div>
 
@@ -268,6 +276,7 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const materialsByCategory = @json($materialsByCategory);
                 const initialSelectedMaterials = @json($selectedMaterials).map(String);
+                const unitDimensionMap = @json($unitDimensionMap);
 
                 const $category = $('#category_id');
                 const $unit = $('#unit_id');
@@ -275,6 +284,9 @@
                 const $materialsWrapper = $('#product-material-select');
                 const $hintSelect = $('#materials-hint-select');
                 const $hintEmpty = $('#materials-hint-empty');
+                const $dimensionFields = $('#dimension-fields');
+                const $length = $('#length_cm');
+                const $width = $('#width_cm');
 
                 const selectedMaterials = new Set(initialSelectedMaterials);
 
@@ -291,6 +303,18 @@
                     width: '100%',
                     dropdownParent: $('#product-unit-select'),
                 });
+
+                function toggleDimensionFields(unitId, preserveValues = true) {
+                    const shouldShow = unitId && unitDimensionMap[String(unitId)];
+                    $dimensionFields.toggleClass('hidden', !shouldShow);
+                    $length.prop('disabled', !shouldShow);
+                    $width.prop('disabled', !shouldShow);
+
+                    if (!shouldShow && !preserveValues) {
+                        $length.val('');
+                        $width.val('');
+                    }
+                }
 
                 $materials.select2({
                     placeholder: 'Pilih material…',
@@ -356,6 +380,12 @@
                 } else {
                     toggleHints(null, []);
                 }
+
+                toggleDimensionFields($unit.val(), true);
+
+                $unit.on('change', function () {
+                    toggleDimensionFields($(this).val(), false);
+                });
             });
         </script>
     @endpush
