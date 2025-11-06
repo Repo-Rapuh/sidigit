@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Composer / vendor lokal (biar docker yang install sendiri)
+vendor/
+composer.lock
+
+# Node / front-end
+node_modules/
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+.vite
+vite.config.local.*
+
+# Laravel cache & storage yang nggak perlu di-build
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*.php
+
+# IDE / OS
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker files
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Tests & misc (kalau gak dibutuhin di image)
+tests/
+phpunit.xml
+phpunit.xml.dist

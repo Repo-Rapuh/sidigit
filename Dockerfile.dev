@@ -1,0 +1,14 @@
+FROM serversideup/php:8.4-fpm-nginx-alpine
+
+WORKDIR /var/www/html
+
+# 🧩 Jalankan sebagai root untuk install extensions
+USER root
+
+RUN install-php-extensions gd apcu intl bcmath exif
+
+# 🔐 Balik lagi ke user default (www-data)
+USER www-data
+
+# Expose port nginx default
+EXPOSE 80

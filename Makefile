@@ -1,4 +1,4 @@
-COMPOSE ?= podman compose
+COMPOSE ?= docker compose
 LOCAL_FILE ?= docker-compose.local.yml
 PROD_FILE ?= docker-compose.prod.yml
 SERVICE ?= app
@@ -34,7 +34,7 @@ shell: ## Open a shell inside the app container
 	$(COMPOSE) -f $(LOCAL_FILE) exec $(SERVICE) sh
 
 artisan: ## Run an artisan command (make artisan ARTISAN_CMD='migrate --force')
-	$(COMPOSE) -f $(LOCAL_FILE) exec app php artisan $(ARTISAN_CMD)
+	$(COMPOSE) -f $(LOCAL_FILE) exec -u root app php artisan $(ARTISAN_CMD)
 
 composer-install: ## Install PHP dependencies in the app container
 	$(COMPOSE) -f $(LOCAL_FILE) exec app composer install
@@ -44,6 +44,9 @@ migrate: ## Run database migrations locally
 
 seed: ## Seed the database locally
 	$(COMPOSE) -f $(LOCAL_FILE) exec app php artisan db:seed
+
+ps: ## Seed the database locally
+	$(COMPOSE) -f $(LOCAL_FILE) ps
 
 prod-up: ## Start the production stack (detached)
 	$(COMPOSE) -f $(PROD_FILE) up -d --build

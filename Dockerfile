@@ -11,37 +11,37 @@ WORKDIR /var/www/html
 
 RUN set -eux; \
     apk add --no-cache \
-        bash \
-        curl \
-        git \
-        tzdata \
-        zip \
-        unzip \
-        icu \
-        libzip \
-        oniguruma \
-        freetype \
-        libpng \
-        libjpeg-turbo; \
+    bash \
+    curl \
+    git \
+    tzdata \
+    zip \
+    unzip \
+    icu \
+    libzip \
+    oniguruma \
+    freetype \
+    libpng \
+    libjpeg-turbo; \
     apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        icu-dev \
-        libzip-dev \
-        oniguruma-dev \
-        freetype-dev \
-        libpng-dev \
-        libjpeg-turbo-dev; \
+    $PHPIZE_DEPS \
+    icu-dev \
+    libzip-dev \
+    oniguruma-dev \
+    freetype-dev \
+    libpng-dev \
+    libjpeg-turbo-dev; \
     docker-php-ext-configure gd \
-        --with-freetype \
-        --with-jpeg; \
+    --with-freetype \
+    --with-jpeg; \
     docker-php-ext-install -j"$(nproc)" \
-        bcmath \
-        gd \
-        intl \
-        opcache \
-        pdo_mysql \
-        pdo \
-        pcntl; \
+    bcmath \
+    gd \
+    intl \
+    opcache \
+    pdo_mysql \
+    pdo \
+    pcntl; \
     pecl install redis; \
     docker-php-ext-enable redis; \
     apk del .build-deps; \
@@ -67,12 +67,12 @@ ENV APP_ENV=production
 
 COPY composer.json composer.lock ./
 RUN composer install \
-        --no-dev \
-        --no-interaction \
-        --no-progress \
-        --prefer-dist \
-        --optimize-autoloader \
-        --no-scripts
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-scripts
 
 COPY package*.json vite.config.js ./
 COPY resources ./resources
@@ -100,8 +100,8 @@ COPY --from=build /var/www/html /var/www/html
 
 RUN mkdir -p storage/logs \
     && chown -R www-data:www-data \
-        storage \
-        bootstrap/cache
+    storage \
+    bootstrap/cache
 
 ENTRYPOINT ["php-entrypoint"]
 CMD ["php-fpm", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
