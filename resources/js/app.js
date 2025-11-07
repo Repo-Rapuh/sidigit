@@ -1,18 +1,29 @@
 import "./bootstrap";
 
-import Alpine from "alpinejs";
 import collapse from "@alpinejs/collapse";
 import intersect from "@alpinejs/intersect";
-import persist from "@alpinejs/persist";
+// import persist from "@alpinejs/persist";
 import focus from "@alpinejs/focus";
 
-// daftar plugin yang dipakai
-Alpine.plugin(collapse);
-Alpine.plugin(intersect);
-Alpine.plugin(persist);
-Alpine.plugin(focus);
+const registerPlugins = (Alpine) => {
+	Alpine.plugin(collapse);
+	Alpine.plugin(intersect);
+	// Alpine.plugin(persist);
+	Alpine.plugin(focus);
+};
 
-// optional: expose ke window untuk debug
-window.Alpine = Alpine;
+if (!window.Alpine) {
+	import("alpinejs").then(({default: Alpine}) => {
+		registerPlugins(Alpine);
+		window.Alpine = Alpine;
+		Alpine.start();
+	});
+} else {
+	registerPlugins(window.Alpine);
+}
 
-Alpine.start();
+document.addEventListener("alpine:init", () => {
+	if (window.Alpine) {
+		registerPlugins(window.Alpine);
+	}
+});

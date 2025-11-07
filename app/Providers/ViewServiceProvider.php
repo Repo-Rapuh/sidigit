@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Models\Menu;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -24,39 +23,6 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('layouts.partials.sidebar', function ($view) {
-            $sidebarMenus = collect(); // Default ke koleksi kosong
-
-            if (Auth::check()) {
-                /** @var \App\Models\User $user */
-                $user = Auth::user();
-                $user->load('roles.menus.children'); // Eager load untuk efisiensi
-
-                $menus = $user->roles->flatMap(function ($role) {
-                    return $role->menus;
-                })->unique('id');
-
-                $assignedMenuIds = $menus->pluck('id')->all();
-
-                $sidebarMenus = $menus
-                    ->whereNull('parent_id')
-                    ->sortBy('order')
-                    ->map(function ($menu) use ($assignedMenuIds) {
-                        $filteredChildren = collect($menu->children ?? [])
-                            ->filter(fn ($child) => in_array($child->id, $assignedMenuIds, true))
-                            ->sortBy('order')
-                            ->values();
-
-                        $menu->setRelation('children', $filteredChildren);
-
-                        return $menu;
-                    })
-                    ->values();
-            }
-
-            $view->with('sidebarMenus', $sidebarMenus);
-        });
-
         View::composer('*', function ($view) {
             $pageTitle = 'Dashboard'; // Judul default
             $currentRouteName = Route::currentRouteName();
