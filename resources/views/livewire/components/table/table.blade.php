@@ -65,9 +65,9 @@
                                 @if (isset($column['view']))
                                     @include($column['view'], ['row' => $row])
                                 @elseif(isset($column['format']) && is_callable($column['format']))
-                                    {{ $column['format']($row) }}
+                                    {{ $column['format']($row) ?? '-' }}
                                 @else
-                                    {{ data_get($row, $column['field']) }}
+                                    {{ data_get($row, $column['field']) ?? '-' }}
                                 @endif
                             </td>
                         @endforeach
