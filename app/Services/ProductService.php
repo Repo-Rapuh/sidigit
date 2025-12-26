@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +21,11 @@ class ProductService
     public function getPaginated(int $perPage = 10): LengthAwarePaginator
     {
         return $this->repository->paginate($perPage);
+    }
+
+    public function query(): Builder
+    {
+        return Product::query()->with(['category', 'unit']);
     }
 
     public function store(array $data): Product
@@ -58,6 +64,23 @@ class ProductService
             $product = $this->repository->findOrFail($id);
             $product->productMaterials()->delete();
             $this->repository->delete($product);
+        });
+    }
+
+    public function destroyMany(array $ids): void
+    {
+        $ids = array_values(array_filter($ids));
+        if (empty($ids)) {
+            return;
+        }
+
+        DB::transaction(function () use ($ids) {
+            $products = Product::query()->whereIn('id', $ids)->get();
+            foreach ($products as $product) {
+                $product->productMaterials()->delete();
+            }
+
+            Product::query()->whereIn('id', $ids)->delete();
         });
     }
 

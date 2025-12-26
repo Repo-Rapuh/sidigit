@@ -4,7 +4,9 @@ namespace App\Livewire\Admin\Product;
 
 use App\Livewire\Admin\Product\Concerns\HandlesProductForm;
 use App\Services\ProductService;
+use App\Traits\WithPageMeta;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -17,6 +19,7 @@ class Edit extends Component
 {
     use AuthorizesRequests;
     use HandlesProductForm;
+    use WithPageMeta;
 
     public int $productId;
     public string $sku = '';
@@ -27,7 +30,7 @@ class Edit extends Component
     public $width_cm = null;
     public ?int $unit_id = null;
     public ?int $category_id = null;
-    public ?string $description = null;
+    public ?string $product_description = null;
     public array $materials = [];
 
     protected ProductService $service;
@@ -46,7 +49,7 @@ class Edit extends Component
         'width_cm' => 'Lebar (cm)',
         'unit_id' => 'Satuan',
         'category_id' => 'Kategori Produk',
-        'description' => 'Deskripsi',
+        'product_description' => 'Deskripsi',
         'materials' => 'Material Produk',
         'materials.*' => 'Material Produk',
     ];
@@ -64,7 +67,10 @@ class Edit extends Component
         } catch (\Throwable $th) {
             report($th);
 
-            session()->flash('error', 'Data produk tidak ditemukan atau tidak dapat diakses.');
+            session()->flash('toast', [
+                'message' => 'Data produk tidak ditemukan atau tidak dapat diakses.',
+                'type' => 'error',
+            ]);
             $this->redirectRoute('products.index', navigate: true);
 
             return;
@@ -79,7 +85,7 @@ class Edit extends Component
         $this->width_cm = $productModel->width_cm ?: null;
         $this->unit_id = $productModel->unit_id;
         $this->category_id = $productModel->category_id;
-        $this->description = $productModel->description;
+        $this->product_description = $productModel->description;
         $this->materials = $productModel->productMaterials
             ->pluck('material_id')
             ->map(fn($id) => (int) $id)
@@ -87,6 +93,16 @@ class Edit extends Component
 
         $this->refreshMaterialsForCategory($this->category_id);
         $this->syncDimensionFields();
+
+        $this->setPageMeta(
+            'Edit Produk',
+            'Perbarui informasi produk, harga, dan material yang digunakan.',
+            [
+                ['label' => 'Dashboard', 'url' => Route::has('dashboard') ? route('dashboard') : '#', 'icon' => true],
+                ['label' => 'Produk', 'url' => route('products.index')],
+                ['label' => 'Edit', 'current' => true],
+            ]
+        );
     }
 
     public function updatedCategoryId($value): void
@@ -123,7 +139,7 @@ class Edit extends Component
             'width_cm' => ['nullable', 'numeric', 'min:0'],
             'unit_id' => ['required', 'exists:mst_units,id'],
             'category_id' => ['required', 'exists:mst_categories,id'],
-            'description' => ['nullable', 'string'],
+            'product_description' => ['nullable', 'string'],
             'materials' => ['required', 'array', 'min:1'],
             'materials.*' => [
                 'integer',
@@ -139,25 +155,28 @@ class Edit extends Component
     public function update(): void
     {
         $data = $this->validate();
+        $data['description'] = $data['product_description'] ?? null;
+        unset($data['product_description']);
 
         try {
             $product = $this->service->update($this->productId, $data);
 
-            session()->flash('success', "Produk {$product->name} berhasil diperbarui.");
-            $this->redirectRoute('products.index');
+            session()->flash('toast', [
+                'message' => "Produk {$product->name} berhasil diperbarui.",
+                'type' => 'success',
+            ]);
+            $this->redirectRoute('products.index', navigate: true);
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $th) {
             report($th);
 
-            session()->flash('error', 'Terjadi kesalahan saat memperbarui data produk. Silakan coba lagi.');
+            $this->dispatch('toast', message: 'Terjadi kesalahan saat memperbarui data produk. Silakan coba lagi.', type: 'error');
         }
     }
 
     public function render()
     {
-        return view('livewire.admin.product.edit')->layoutData([
-            'title' => 'Edit Produk',
-        ]);
+        return view('livewire.admin.product.edit');
     }
 }
