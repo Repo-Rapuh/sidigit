@@ -1,7 +1,7 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <div class="space-y-4">
         <x-forms.input label="Nama Gudang" name="form.name" placeholder="Nama gudang"
-            wire:model.blur="form.name" />
+            wire:model.blur="form.name" required />
 
         <div>
             <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Deskripsi</label>

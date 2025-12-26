@@ -21,7 +21,7 @@
 
             <div class="grid grid-cols-1 gap-6">
                 <x-forms.input label="Nama Role" name="name" placeholder="Nama role" wire:model.defer="name"
-                    class="mt-2" />
+                    class="mt-2" required />
             </div>
 
             <div class="space-y-4" wire:init="loadMenuOptions">

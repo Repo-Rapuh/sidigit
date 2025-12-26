@@ -4,6 +4,7 @@
     'optionValue' => 'id',
     'optionLabel' => 'name',
     'placeholder' => 'Pilih...',
+    'required' => false,
 ])
 
 <div x-data="{
@@ -42,7 +43,12 @@
 window.addEventListener('scroll', onScroll, true);
 window.addEventListener('resize', onScroll);" class="relative">
     @if ($label)
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ $label }}</label>
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-200">
+            {{ $label }}
+            @if ($required || $attributes->has('required'))
+                <span class="text-red-500">*</span>
+            @endif
+        </label>
     @endif
 
     <button type="button" x-ref="trigger" @click="open = !open; if (open) { $nextTick(() => updatePosition()); }"

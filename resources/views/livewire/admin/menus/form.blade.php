@@ -1,6 +1,6 @@
 <div class="space-y-4">
     <x-forms.input label="Nama Menu" name="form.name" placeholder="Nama menu"
-        wire:model.blur="form.name" />
+        wire:model.blur="form.name" required />
 
     <x-forms.searchable-select
         label="Menu Induk"
@@ -29,5 +29,5 @@
     </div>
 
     <x-forms.input label="Urutan" name="form.order" placeholder="0"
-        wire:model.blur="form.order" type="number" />
+        wire:model.blur="form.order" type="number" required />
 </div>

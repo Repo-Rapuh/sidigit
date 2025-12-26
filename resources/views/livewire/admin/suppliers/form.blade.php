@@ -1,16 +1,16 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <div class="space-y-4">
         <x-forms.input label="Nama Supplier" name="form.name" placeholder="Nama supplier"
-            wire:model.blur="form.name" />
+            wire:model.blur="form.name" required />
 
         <x-forms.input label="Atas Nama (Opsional)" name="form.on_behalf" placeholder="Atas nama"
             wire:model.blur="form.on_behalf" />
 
         <x-forms.input label="Industri" name="form.industry" placeholder="Industri"
-            wire:model.blur="form.industry" />
+            wire:model.blur="form.industry" required />
 
         <x-forms.input label="Nomor Telepon" name="form.phone_number" placeholder="Nomor telepon"
-            wire:model.blur="form.phone_number" />
+            wire:model.blur="form.phone_number" required />
     </div>
 
     <div class="space-y-4">
