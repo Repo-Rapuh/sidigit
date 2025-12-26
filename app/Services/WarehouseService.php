@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Warehouse;
 use App\Repositories\WarehouseRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class WarehouseService
 {
@@ -17,6 +18,11 @@ class WarehouseService
     public function getPaginated(): LengthAwarePaginator
     {
         return $this->repository->paginate();
+    }
+
+    public function query(): Builder
+    {
+        return Warehouse::query();
     }
 
     public function store(array $data): Warehouse
@@ -36,6 +42,16 @@ class WarehouseService
         $warehouse = $this->repository->findOrFail($id);
 
         $this->repository->delete($warehouse);
+    }
+
+    public function destroyMany(array $ids): void
+    {
+        $ids = array_values(array_filter($ids));
+        if (empty($ids)) {
+            return;
+        }
+
+        Warehouse::query()->whereIn('id', $ids)->delete();
     }
 
     public function find(int $id): Warehouse
