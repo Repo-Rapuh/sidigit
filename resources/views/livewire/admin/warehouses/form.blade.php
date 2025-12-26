@@ -4,8 +4,11 @@
             wire:model.blur="form.name" required />
 
         <div>
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Deskripsi</label>
-            <textarea rows="5" wire:model.blur="form.description" class="form-input mt-2"></textarea>
+            <livewire:components.text-editor
+                label="Deskripsi"
+                placeholder="Tulis deskripsi gudang"
+                wire:model="form.description"
+            />
             @error('form.description')
                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
             @enderror

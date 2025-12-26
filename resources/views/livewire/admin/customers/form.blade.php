@@ -21,8 +21,11 @@
             wire:model.blur="form.email" />
 
         <div>
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Alamat</label>
-            <textarea rows="5" wire:model.blur="form.address" class="form-input mt-2"></textarea>
+            <livewire:components.text-editor
+                label="Alamat"
+                placeholder="Tulis alamat pelanggan"
+                wire:model="form.address"
+            />
             @error('form.address')
                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
             @enderror
