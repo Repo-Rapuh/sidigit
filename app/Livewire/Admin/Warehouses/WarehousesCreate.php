@@ -7,6 +7,7 @@ use App\Services\WarehouseService;
 use App\Traits\WithPageMeta;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -46,8 +47,8 @@ class WarehousesCreate extends Component
         try {
             $this->form->store($this->service);
             session()->flash('toast', ['message' => 'Gudang berhasil ditambahkan.', 'type' => 'success']);
-            $this->redirectRoute('warehouses.index', navigate: true);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->redirectRoute('warehouses.index');
+        } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
             report($e);

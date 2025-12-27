@@ -134,7 +134,7 @@ class Create extends Component
                 'message' => "Produk {$product->name} berhasil ditambahkan.",
                 'type' => 'success',
             ]);
-            $this->redirectRoute('products.index', navigate: true);
+            $this->redirectRoute('products.index');
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $th) {

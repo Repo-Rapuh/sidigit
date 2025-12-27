@@ -49,7 +49,7 @@ class PermissionsEdit extends Component
 
         session()->flash('success', 'Permission berhasil diperbarui.');
 
-        $this->redirectRoute('permissions.index', navigate: true);
+        $this->redirectRoute('permissions.index');
     }
 
     public function render()

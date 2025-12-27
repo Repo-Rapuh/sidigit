@@ -52,7 +52,7 @@ class SuppliersEdit extends Component
         try {
             $this->form->update($this->service);
             session()->flash('toast', ['message' => 'Supplier berhasil diperbarui.', 'type' => 'success']);
-            $this->redirectRoute('suppliers.index', navigate: true);
+            $this->redirectRoute('suppliers.index');
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {

@@ -86,7 +86,7 @@ class Edit extends Component
         $this->password_confirmation = '';
 
         session()->flash('toast', ['message' => 'Profil berhasil diperbarui.', 'type' => 'success']);
-        $this->redirectRoute('profile.edit', navigate: true);
+        $this->redirectRoute('profile.edit');
     }
 
     public function render()

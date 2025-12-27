@@ -71,7 +71,7 @@ class Edit extends Component
                 'message' => 'Data produk tidak ditemukan atau tidak dapat diakses.',
                 'type' => 'error',
             ]);
-            $this->redirectRoute('products.index', navigate: true);
+            $this->redirectRoute('products.index');
 
             return;
         }
@@ -165,7 +165,7 @@ class Edit extends Component
                 'message' => "Produk {$product->name} berhasil diperbarui.",
                 'type' => 'success',
             ]);
-            $this->redirectRoute('products.index', navigate: true);
+            $this->redirectRoute('products.index');
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $th) {

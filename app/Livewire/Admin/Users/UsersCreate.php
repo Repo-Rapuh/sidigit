@@ -56,7 +56,7 @@ class UsersCreate extends Component
 
         session()->flash('success', 'User baru berhasil ditambahkan.');
 
-        $this->redirectRoute('users.index', navigate: true);
+        $this->redirectRoute('users.index');
     }
 
     public function render()

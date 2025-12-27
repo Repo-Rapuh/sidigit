@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Services\EmployeeService;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 class EmployeeForm extends Form
@@ -19,7 +20,7 @@ class EmployeeForm extends Form
     public ?string $address = null;
     public ?string $phone_number = null;
     public ?string $email = null;
-    public $photo = null;
+    public ?array $photo = [];
     public ?string $salary = null;
     public string $status = '';
 
@@ -35,7 +36,7 @@ class EmployeeForm extends Form
                 'max:64',
                 Rule::unique('mst_employees', 'email')->ignore($this->id),
             ],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => ['nullable', 'array'],
             'salary' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', Rule::enum(EmployeeStatus::class)],
         ];
@@ -48,7 +49,7 @@ class EmployeeForm extends Form
         $this->address = $employee->address;
         $this->phone_number = $employee->phone_number;
         $this->email = $employee->email;
-        $this->photo = null;
+        $this->photo = [];
         $this->salary = $employee->salary !== null ? (string) $employee->salary : null;
         $this->status = $employee->status?->value ?? '';
     }
@@ -74,9 +75,28 @@ class EmployeeForm extends Form
             'address' => $this->address,
             'phone_number' => $this->phone_number,
             'email' => $this->email,
-            'photo' => $this->photo,
+            'photo' => $this->resolvedPhoto(),
             'salary' => $this->salary,
             'status' => $this->status,
         ];
+    }
+
+    protected function resolvedPhoto(): ?TemporaryUploadedFile
+    {
+        if (empty($this->photo)) {
+            return null;
+        }
+
+        $firstPhoto = $this->photo[0] ?? null;
+        if (!is_array($firstPhoto)) {
+            return null;
+        }
+
+        $tmpFilename = $firstPhoto['tmpFilename'] ?? $firstPhoto['path'] ?? null;
+        if (empty($tmpFilename)) {
+            return null;
+        }
+
+        return TemporaryUploadedFile::createFromLivewire($tmpFilename);
     }
 }

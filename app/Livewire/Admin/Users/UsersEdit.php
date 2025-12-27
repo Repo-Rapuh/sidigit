@@ -35,7 +35,7 @@ class UsersEdit extends Component
         $this->name = $this->user->name;
         $this->username = $this->user->username;
         $this->email = $this->user->email;
-        $this->roles = $this->user->roles->pluck('id')->map(fn ($id) => (int) $id)->toArray();
+        $this->roles = $this->user->roles->pluck('id')->map(fn($id) => (int) $id)->toArray();
     }
 
     protected function rules(): array
@@ -69,7 +69,7 @@ class UsersEdit extends Component
 
         session()->flash('success', 'User berhasil diperbarui.');
 
-        $this->redirectRoute('users.index', navigate: true);
+        $this->redirectRoute('users.index');
     }
 
     public function render()

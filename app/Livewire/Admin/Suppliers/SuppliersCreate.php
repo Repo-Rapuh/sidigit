@@ -46,7 +46,7 @@ class SuppliersCreate extends Component
         try {
             $this->form->store($this->service);
             session()->flash('toast', ['message' => 'Supplier berhasil ditambahkan.', 'type' => 'success']);
-            $this->redirectRoute('suppliers.index', navigate: true);
+            $this->redirectRoute('suppliers.index');
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {

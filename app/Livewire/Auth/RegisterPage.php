@@ -49,7 +49,7 @@ class RegisterPage extends Component
 
         session()->regenerate();
 
-        $this->redirectIntended(route('dashboard'), navigate: true);
+        $this->redirectIntended(route('dashboard'));
     }
 
     public function render()
@@ -62,4 +62,3 @@ class RegisterPage extends Component
             ]);
     }
 }
-

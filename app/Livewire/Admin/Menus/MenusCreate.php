@@ -46,7 +46,7 @@ class MenusCreate extends Component
 
         session()->flash('success', 'Menu baru berhasil ditambahkan.');
 
-        $this->redirectRoute('menus.index', navigate: true);
+        $this->redirectRoute('menus.index');
     }
 
     public function render()
@@ -69,5 +69,4 @@ class MenusCreate extends Component
             ])
             ->toArray();
     }
-
 }

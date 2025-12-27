@@ -5,6 +5,7 @@ import intersect from "@alpinejs/intersect";
 // import persist from "@alpinejs/persist";
 import focus from "@alpinejs/focus";
 
+
 const registerPlugins = (Alpine) => {
 	Alpine.plugin(collapse);
 	Alpine.plugin(intersect);

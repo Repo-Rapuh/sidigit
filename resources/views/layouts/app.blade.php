@@ -13,7 +13,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
-        window.deferLoadingAlpine = function (callback) {
+        window.deferLoadingAlpine = function(callback) {
             window.addEventListener('DOMContentLoaded', () => callback());
         };
     </script>

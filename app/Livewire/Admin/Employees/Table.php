@@ -122,6 +122,7 @@ class Table extends BaseTable
     protected function columns(): array
     {
         return [
+            ['label' => 'Foto', 'field' => 'photo', 'sortable' => false, 'view' => 'livewire.admin.employees.columns.photo'],
             ['label' => 'Nama', 'field' => 'name', 'sortable' => true],
             ['label' => 'Status', 'field' => 'status', 'sortable' => false, 'view' => 'livewire.admin.employees.columns.status'],
             ['label' => 'Telepon', 'field' => 'phone_number', 'sortable' => false],

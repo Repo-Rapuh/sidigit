@@ -59,7 +59,7 @@ class ResetPasswordPage extends Component
 
         if ($status === Password::PASSWORD_RESET) {
             $this->status = __($status);
-            $this->redirectRoute('login', navigate: true);
+            $this->redirectRoute('login');
 
             return;
         }
@@ -77,4 +77,3 @@ class ResetPasswordPage extends Component
             ]);
     }
 }
-

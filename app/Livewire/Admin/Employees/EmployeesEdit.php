@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithFileUploads;
+use Spatie\LivewireFilepond\WithFilePond;
 
 #[Layout('layouts.app')]
 #[Title('Edit Karyawan')]
@@ -18,7 +18,7 @@ class EmployeesEdit extends Component
 {
     use AuthorizesRequests;
     use WithPageMeta;
-    use WithFileUploads;
+    use WithFilePond;
 
     public EmployeeForm $form;
     public array $statuses = [];
@@ -58,7 +58,7 @@ class EmployeesEdit extends Component
         try {
             $this->form->update($this->service);
             session()->flash('toast', ['message' => 'Karyawan berhasil diperbarui.', 'type' => 'success']);
-            $this->redirectRoute('employees.index', navigate: true);
+            $this->redirectRoute('employees.index');
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {

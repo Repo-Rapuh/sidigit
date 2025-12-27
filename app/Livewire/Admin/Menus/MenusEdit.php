@@ -55,7 +55,7 @@ class MenusEdit extends Component
 
         session()->flash('success', 'Menu berhasil diperbarui.');
 
-        $this->redirectRoute('menus.index', navigate: true);
+        $this->redirectRoute('menus.index');
     }
 
     public function render()
@@ -79,5 +79,4 @@ class MenusEdit extends Component
             ])
             ->toArray();
     }
-
 }

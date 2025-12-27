@@ -25,32 +25,41 @@
         <x-forms.input label="Email" name="form.email" placeholder="Email" wire:model.blur="form.email"
             type="email" />
 
-        <div>
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Foto</label>
-            <input type="file" wire:model="form.photo" accept="image/*" class="form-input mt-2" />
-            @error('form.photo')
-                <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-            @enderror
+        <div class="space-y-3">
+            <x-forms.image-upload label="Foto" name="form.photo" wire:model="form.photo" />
 
             @if (!empty($currentPhoto) && empty($form->photo))
                 <div class="mt-3 flex items-center gap-3">
                     <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
                         Foto saat ini
                     </span>
-                    <img src="{{ asset('storage/' . $currentPhoto) }}" alt="Foto karyawan"
+                    @php
+                        $disk = config('filesystems.default', 'public');
+                        $currentPhotoUrl = asset('images/default-avatar.svg');
+
+                        if (!empty($currentPhoto)) {
+                            try {
+                                $driver = config("filesystems.disks.{$disk}.driver");
+                                $storage = Storage::disk($disk);
+                                $currentPhotoUrl = $driver === 's3'
+                                    ? $storage->temporaryUrl($currentPhoto, now()->addMinutes(10))
+                                    : $storage->url($currentPhoto);
+                            } catch (\Throwable $e) {
+                                $currentPhotoUrl = asset('images/default-avatar.svg');
+                            }
+                        }
+                    @endphp
+
+                    <img src="{{ $currentPhotoUrl }}" alt="Foto karyawan"
+                        onerror="this.onerror=null;this.src='{{ asset('images/default-avatar.svg') }}';"
                         class="h-16 w-16 rounded-xl object-cover ring-1 ring-gray-200 dark:ring-gray-700">
                 </div>
             @endif
         </div>
     </div>
 </div>
-
 <div>
-    <livewire:components.text-editor
-        label="Alamat"
-        placeholder="Tulis alamat karyawan"
-        wire:model="form.address"
-    />
+    <livewire:components.text-editor label="Alamat" placeholder="Tulis alamat karyawan" wire:model="form.address" />
     @error('form.address')
         <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
     @enderror
