@@ -8,11 +8,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Role;
 use App\Traits\LogsAllActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use RichanFongdasen\EloquentBlameable\BlameableTrait;
 
 class User extends Authenticatable
 {
     // 2. Tambahkan trait ini di dalam class
-    use HasFactory, Notifiable, LogsAllActivity;
+    use HasFactory, Notifiable, LogsAllActivity, SoftDeletes, BlameableTrait;
 
 
     /**

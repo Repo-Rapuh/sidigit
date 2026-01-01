@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Menu;
 use App\Traits\LogsAllActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+use RichanFongdasen\EloquentBlameable\BlameableTrait;
 
 class Role extends Model
 {
-    use HasFactory, LogsAllActivity;
+    use HasFactory, LogsAllActivity, BlameableTrait, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +24,15 @@ class Role extends Model
         'name',
         'slug',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Role $role) {
+            if (filled($role->name)) {
+                $role->slug = Str::slug($role->name);
+            }
+        });
+    }
 
     public function users()
     {

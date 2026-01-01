@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory; 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Role;
 use App\Traits\LogsAllActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use RichanFongdasen\EloquentBlameable\BlameableTrait;
 
 class Menu extends Model
 {
-    use HasFactory, LogsAllActivity;
+    use HasFactory, LogsAllActivity, SoftDeletes, BlameableTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -43,4 +45,11 @@ class Menu extends Model
     {
         return $this->hasMany(Permission::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(fn () => cache()->flush());
+        static::deleted(fn () => cache()->flush());
+    }
+
 }

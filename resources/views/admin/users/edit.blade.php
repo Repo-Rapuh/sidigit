@@ -1,80 +1,140 @@
 @extends('layouts.app')
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/extensions/choices.js/public/assets/styles/choices.css') }}">
-@endpush
+@section('title', 'Edit User')
 
 @section('content')
-<div class="page-heading">
-    <h3>Edit User: {{ $user->name }}</h3>
-</div>
-<div class="page-content">
-    <div class="card">
-        <div class="card-body">
-            <form action="{{ route('users.update', $user) }}" method="POST">
+    <div class="space-y-6">
+        <div class="flex items-baseline justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Edit User</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Perbarui informasi akun dan hak akses pengguna sesuai kebutuhan.
+                </p>
+            </div>
+            <a href="{{ route('users.index') }}"
+                class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-brand-200 hover:text-brand-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:text-brand-400">
+                Kembali
+            </a>
+        </div>
+
+        <div class="space-y-8 rounded-3xl border border-gray-200 bg-white p-8 shadow-theme-sm dark:border-gray-800 dark:bg-gray-950/70">
+            <form action="{{ route('users.update', $user) }}" method="POST" class="space-y-8">
                 @csrf
                 @method('PUT')
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="name">Nama Lengkap</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div class="space-y-5">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Nama Lengkap
+                            </label>
+                            <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
+                                @class([
+                                    'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                                    'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('name'),
+                                ])>
+                            @error('name')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username', $user->username) }}" required>
-                            @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
+
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Username
+                            </label>
+                            <input type="text" id="username" name="username" value="{{ old('username', $user->username) }}" required
+                                @class([
+                                    'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                                    'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('username'),
+                                ])>
+                            @error('username')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email) }}" required>
-                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Email
+                            </label>
+                            <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required
+                                @class([
+                                    'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                                    'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('email'),
+                                ])>
+                            @error('email')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">
-                            <small class="form-text text-muted">Kosongkan jika tidak ingin mengubah password.</small>
-                            @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+
+                    <div class="space-y-5">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Password Baru
+                                </label>
+                                <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                                    Opsional
+                                </span>
+                            </div>
+                            <input type="password" id="password" name="password" placeholder="••••••••"
+                                @class([
+                                    'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                                    'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('password'),
+                                ])>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Kosongkan jika tidak ingin mengubah password.
+                            </p>
+                            @error('password')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="password_confirmation">Konfirmasi Password</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+
+                        <div>
+                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Konfirmasi Password
+                            </label>
+                            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="••••••••"
+                                class="mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
                         </div>
-                        <div class="form-group">
-                            <label for="role">Role</label>
-                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role">
-                                <option value="">-- Pilih Role --</option>
+
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Role
+                            </label>
+                            @php
+                                $selectedRoleId = old('role', $user->roles->first()?->id);
+                            @endphp
+                            <select id="role" name="role"
+                                @class([
+                                    'mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                                    'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-400' => $errors->has('role'),
+                                ])>
+                                <option value="" disabled {{ $selectedRoleId === null ? 'selected' : '' }}>Pilih role…</option>
                                 @foreach ($roles as $role)
-                                    <option value="{{ $role->id }}" {{ old('role', $user->roles->first()->id) == $role->id ? 'selected' : '' }}>
+                                    <option value="{{ $role->id }}" {{ $selectedRoleId === $role->id ? 'selected' : '' }}>
                                         {{ $role->name }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('role')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            @error('role')
+                                <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">Update</button>
-                    <a href="{{ route('users.index') }}" class="btn btn-light">Kembali</a>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:ring-offset-gray-950">
+                        Perbarui User
+                    </button>
+                    <a href="{{ route('users.index') }}"
+                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:border-brand-200 hover:text-brand-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:text-brand-400">
+                        Batal
+                    </a>
                 </div>
             </form>
         </div>
     </div>
-</div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('assets/extensions/choices.js/public/assets/scripts/choices.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const choices = document.querySelectorAll('.choices');
-            for (let i = 0; i < choices.length; i++) {
-                new Choices(choices[i], { removeItemButton: true });
-            }
-        });
-    </script>
-@endpush

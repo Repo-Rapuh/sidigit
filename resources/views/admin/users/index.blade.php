@@ -1,125 +1,170 @@
 @extends('layouts.app')
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/extensions/sweetalert2/sweetalert2.min.css') }}">
-@endpush
+@section('title', $pageTitle ?? 'Manajemen Role')
 
 @section('content')
-    <div class="page-heading">
-        <h3>{{ $pageTitle ?? 'Default Judul' }}</h3>
-    </div>
-    <div class="page-content">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="space-y-6">
+        <div class="flex items-baseline justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Daftar User</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    List Pengguna.
+                </p>
             </div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @can('user.create')
+                <a href="{{ route('users.create') }}"
+                    class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:ring-offset-gray-900">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4.167v11.666M4.167 10h11.666" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Tambah Role
+                </a>
+            @endcan
+        </div>
+
+        @if (session('success'))
+            <div
+                class="rounded-2xl border border-success-200 bg-success-50 px-4 py-3 text-sm font-medium text-success-700 dark:border-success-500/30 dark:bg-success-500/10 dark:text-success-200">
+                {{ session('success') }}
             </div>
         @endif
 
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">Daftar User</h5>
-                    @can('user.create')
-                        <a href="{{ route('users.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Tambah
-                            User</a>
-                    @endcan
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>Nama</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($users as $user)
-                                <tr>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->username }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>
-                                        @foreach ($user->roles as $role)
-                                            <span class="badge bg-primary">{{ $role->name }}</span>
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center">
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-950/60">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
+                    <thead class="bg-gray-50 dark:bg-gray-900/50">
+                        <tr>
+                            <th scope="col"
+                                class="px-4 py-3 text-center font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                No.
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                Nama
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                Username
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                Email
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                Role
+                            </th>
+                            <th scope="col"
+                                class="px-4 py-3 text-center font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                Aksi
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white dark:divide-gray-900 dark:bg-gray-950/40">
+                        @forelse ($users as $user)
+                            <tr class="hover:bg-gray-50/60 dark:hover:bg-gray-900/50">
+                                <td class="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
+                                    {{ $loop->iteration + $users->firstItem() - 1 }}
+                                </td>
+                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                                    {{ $user->name }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                    {{ $user->username }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                        {{ $user->email }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                    @foreach ($user->roles as $role )
+                                        <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                            {{ $role->name }}
+                                        </span>
+                                    @endforeach
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-center gap-2">
                                         @can('user.edit')
-                                            <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning"><i
-                                                    class="bi bi-pencil-square"></i></a>
+                                            <a href="{{ route('users.edit', $user) }}"
+                                                class="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-brand-200 hover:text-brand-600 dark:border-gray-700 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:text-brand-400">
+                                                Edit
+                                            </a>
                                         @endcan
                                         @can('user.delete')
-                                            <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="btn btn-sm btn-danger btn-delete"><i
-                                                        class="bi bi-trash3-fill"></i></button>
-                                            </form>
+                                            <div x-data="{ isConfirmOpen: false }" @keydown.escape.window="isConfirmOpen = false">
+                                                <form x-ref="formDeleteUser{{ $user->id }}"
+                                                    action="{{ route('users.destroy', $user) }}" method="POST"
+                                                    class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" @click="isConfirmOpen = true"
+                                                        class="inline-flex items-center gap-1 rounded-lg border border-error-200 bg-error-50 px-3 py-2 text-xs font-semibold text-error-600 transition hover:border-error-300 hover:bg-error-100 dark:border-error-500/40 dark:bg-error-500/10 dark:text-error-200 dark:hover:bg-error-500/20">
+                                                        Hapus
+                                                    </button>
+
+                                                    <div x-cloak x-show="isConfirmOpen" x-transition.opacity
+                                                        class="fixed inset-0 z-[100000] flex items-center justify-center bg-gray-950/90 px-4"
+                                                        role="dialog" aria-modal="true" aria-labelledby="deleteUserTitle{{ $user->id }}"
+                                                        @click.self="isConfirmOpen = false">
+                                                        <div x-show="isConfirmOpen" x-transition.scale
+                                                            class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+                                                            <div class="flex items-start gap-3">
+                                                                <span
+                                                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-error-100 text-error-600 dark:bg-error-500/15 dark:text-error-300">
+                                                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                                                        stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                                    </svg>
+                                                                </span>
+                                                                <div class="space-y-2">
+                                                                    <h3 id="deleteUserTitle{{ $user->id }}"
+                                                                        class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                                        Hapus User?
+                                                                    </h3>
+                                                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                                        Tindakan ini akan menghapus pengguna
+                                                                        <span class="font-semibold text-gray-900 dark:text-white">{{ $user->name }}</span>
+                                                                        secara permanen. Data yang dihapus tidak dapat dipulihkan.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-6 flex items-center justify-end gap-2">
+                                                                <button type="button" @click="isConfirmOpen = false"
+                                                                    class="inline-flex items-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-gray-300 hover:text-gray-700 dark:border-gray-700 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-white">
+                                                                    Batal
+                                                                </button>
+                                                                <button type="button"
+                                                                    @click="$refs.formDeleteUser{{ $user->id }}.submit()"
+                                                                    class="inline-flex items-center rounded-lg bg-error-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-error-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error-500 focus-visible:ring-offset-2 dark:ring-offset-gray-900">
+                                                                    Ya, hapus
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         @endcan
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center">Data belum tersedia.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-3">
-                    {{ $users->links('components.pagination') }}
-                </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    Data role belum tersedia.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="border-t border-gray-100 px-4 py-4 dark:border-gray-900">
+                {{ $users->links('components.pagination') }}
             </div>
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('assets/extensions/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script>
-        // Tunggu sampai semua HTML dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ambil semua tombol dengan kelas .btn-delete
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault(); // Mencegah aksi default tombol
-
-                    // Ambil form terdekat dari tombol yang diklik
-                    const form = this.closest('form');
-
-                    // Tampilkan SweetAlert
-                    Swal.fire({
-                        title: 'Anda yakin?',
-                        text: "Data yang dihapus tidak dapat dikembalikan!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        // Jika pengguna menekan "Ya, hapus!"
-                        if (result.isConfirmed) {
-                            // Submit form untuk menghapus data
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
-@endpush
