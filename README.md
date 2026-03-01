@@ -107,6 +107,20 @@
 - After the containers start, run `docker compose -f docker-compose.prod.yml exec app php artisan key:generate --force` (first run), `php artisan migrate --force`, and `php artisan storage:link` if you need public storage.
 - Make sure `docker/.env.production` references the correct external MinIO/S3 endpoint and credentials before deploying.
 
+## Modul Struk Thermal
+- Ditambahkan modul struk thermal untuk order pada route: `/orders/{order}/receipt` (`orders.receipt`).
+- Akses route struk diproteksi permission `order.view` melalui mapping explicit di `config/route_permissions.php`.
+- Struk bisa dibuka publik internal aplikasi (halaman preview) atau langsung cetak thermal via query `?print=1`.
+- Opsi ukuran thermal didukung via query `paper`:
+  - `paper=80` (default)
+  - `paper=58`
+- Contoh: `/orders/{order}/receipt?payment_id=10&paper=58&print=1`
+- Jika order punya beberapa pembayaran, struk bisa dipilih per pembayaran melalui parameter `payment_id`.
+- Integrasi tombol:
+  - daftar order: aksi `Print Struk` (muncul jika order sudah punya pembayaran),
+  - halaman order (edit/lihat): tombol `Print Struk`,
+  - halaman input pembayaran: tombol `Print Struk Terakhir`.
+- Layout struk didesain untuk kertas thermal 80mm di `resources/views/admin/orders/receipt.blade.php`.
 ## Paket Aplikasi (Rencana Modular)
 ### Matriks Paket (Saran)
 | Modul/Fitur | Silver (Rp200.000) | Gold (Rp300.000) | Platinum (Rp350.000) |

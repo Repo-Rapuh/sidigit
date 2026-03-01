@@ -21,6 +21,13 @@
         .meta-table { width: 100%; border-collapse: collapse; }
         .meta-table td { padding: 4px 6px; border-bottom: 1px dotted #e5e7eb; }
         .meta-label { width: 32%; background: #f3f4f6; color: #374151; font-weight: 700; }
+        .no-outer-border,
+        .no-outer-border > tbody > tr,
+        .no-outer-border > tbody > tr > td,
+        .no-outer-border > tr,
+        .no-outer-border > tr > td {
+            border: 0 !important;
+        }
         .text-right { text-align: right; }
         .totals td { border-bottom: none; }
     </style>
@@ -49,7 +56,7 @@
         ][$status] ?? ucfirst($status);
     @endphp
 
-    <table class="row">
+    <table class="row no-outer-border">
         <tr>
             <td class="col" style="width: 55%;">
                 <h1>{{ $companyName }}</h1>

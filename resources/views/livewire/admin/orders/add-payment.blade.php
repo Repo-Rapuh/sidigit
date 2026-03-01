@@ -9,6 +9,7 @@
         ['value' => 'qris', 'label' => 'QRIS'],
     ]);
     $paymentsAsc = collect($payments ?? [])->sortBy('paid_at')->values();
+    $latestPayment = $paymentsAsc->last();
     $runningBalance = (float) $grandTotal;
     $ledgerRows = collect([
         [
@@ -57,6 +58,13 @@
             <div class="flex items-center gap-3">
                 <a href="{{ route('orders.edit', ['order' => $orderId]) }}" class="btn btn-secondary">Kembali ke Edit</a>
                 <a href="{{ route('orders.index') }}" class="btn btn-secondary">Daftar Order</a>
+                @if (!empty($latestPayment?->id))
+                    <a href="{{ route('orders.receipt', ['order' => $orderId, 'payment_id' => $latestPayment->id, 'print' => 1]) }}" target="_blank"
+                        class="btn btn-secondary inline-flex items-center gap-2">
+                        <x-lucide-printer class="h-4 w-4" />
+                        <span>Print Struk Terakhir</span>
+                    </a>
+                @endif
             </div>
         </div>
 

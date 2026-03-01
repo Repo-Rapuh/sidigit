@@ -39,6 +39,11 @@
                                 <x-lucide-wallet class="h-4 w-4" />
                                 <span>Input Pembayaran</span>
                             </a>
+                            <a href="{{ route('orders.receipt', ['order' => $orderId, 'print' => 1]) }}" target="_blank"
+                                class="btn btn-secondary inline-flex items-center gap-2">
+                                <x-lucide-printer class="h-4 w-4" />
+                                <span>Print Struk</span>
+                            </a>
                             <a href="{{ route('orders.index') }}" class="btn btn-secondary inline-flex items-center gap-2">
                                 <x-lucide-arrow-left class="h-4 w-4" />
                                 <span>Kembali</span>
@@ -61,6 +66,10 @@
                             @endif
                             <a href="{{ route('orders.payments.create', ['order' => $orderId]) }}" class="btn btn-secondary">
                                 Input Pembayaran
+                            </a>
+                            <a href="{{ route('orders.receipt', ['order' => $orderId, 'print' => 1]) }}" target="_blank"
+                                class="btn btn-secondary">
+                                Print Struk
                             </a>
                             @if (($status ?? 'draft') !== 'draft')
                                 <a href="{{ route('orders.quotation', ['order' => $orderId, 'print' => 1]) }}" target="_blank"

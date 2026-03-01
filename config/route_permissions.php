@@ -49,6 +49,7 @@ return [
         'orders.invoice.pdf' => 'order.view',
         'orders.quotation' => 'order.view',
         'orders.quotation.pdf' => 'order.view',
+        'orders.receipt' => 'order.view',
         'orders.payments.create' => 'order.edit',
         'productions.index' => 'production.view',
         'productions.desain' => 'production.view',

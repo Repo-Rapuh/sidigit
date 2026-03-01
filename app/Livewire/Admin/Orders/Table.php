@@ -299,6 +299,13 @@ class Table extends BaseTable
                 'visible' => fn ($row) => !in_array($row->status, ['draft', 'quotation'], true),
             ],
             [
+                'label' => 'Print Struk',
+                'url' => fn ($row) => route('orders.receipt', ['order' => $row->id, 'print' => 1]),
+                'class' => 'text-gray-700 dark:text-gray-200',
+                'icon' => 'printer',
+                'visible' => fn ($row) => (float) ($row->paid_amount ?? 0) > 0,
+            ],
+            [
                 'label' => 'Delete',
                 'method' => 'confirmDelete',
                 'class' => 'text-red-600',
