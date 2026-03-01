@@ -49,12 +49,21 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                    <x-forms.searchable-select
-                        label="Ikon"
-                        :options="$icons"
-                        placeholder="Pilih ikon"
-                        wire:model="icon"
-                    />
+                    <label for="icon" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ikon</label>
+                    <input type="text" id="icon" wire:model.defer="icon"
+                        placeholder="Contoh: dashboard atau bi bi-receipt"
+                        class="mt-2 block w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100" />
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        Isi key ikon dari preset atau class ikon custom.
+                    </p>
+                    <div class="mt-3">
+                        <x-forms.searchable-select
+                            label="Preset Ikon (Opsional)"
+                            :options="$iconPresets"
+                            placeholder="Pilih preset"
+                            wire:model="icon"
+                        />
+                    </div>
                     @error('icon')
                         <p class="mt-1 text-sm text-error-500 dark:text-error-300">{{ $message }}</p>
                     @enderror

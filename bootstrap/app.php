@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
          $middleware->alias([
              'route.permission' => \App\Http\Middleware\EnsureRoutePermission::class,
+             'route.feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
          ]);
 
          $middleware->use([

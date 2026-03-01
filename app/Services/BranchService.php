@@ -4,18 +4,23 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Repositories\BranchRepository;
+use App\Support\UploadPath;
+use App\Support\UploadStorage;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class BranchService
 {
     protected BranchRepository $repository;
+    protected UploadQuotaService $uploadQuotaService;
 
-    public function __construct(BranchRepository $repository)
+    public function __construct(BranchRepository $repository, UploadQuotaService $uploadQuotaService)
     {
         $this->repository = $repository;
+        $this->uploadQuotaService = $uploadQuotaService;
     }
 
     public function query(): Builder
@@ -30,21 +35,27 @@ class BranchService
 
     public function store(array $data): Branch
     {
-        $data = $this->preparePayload($data);
-        $branch = $this->repository->create($data);
-        $this->syncMainBranch($branch, (bool) ($data['is_main'] ?? false));
+        return DB::transaction(function () use ($data) {
+            $media = $this->extractMedia($data);
+            $branch = $this->repository->create($data);
+            $this->syncMedia($branch, $media);
+            $this->syncMainBranch($branch, (bool) ($data['is_main'] ?? false));
 
-        return $branch;
+            return $branch->fresh();
+        });
     }
 
     public function update(int $id, array $data): Branch
     {
-        $branch = $this->repository->findOrFail($id);
-        $data = $this->preparePayload($data, $branch);
-        $branch = $this->repository->update($branch, $data);
-        $this->syncMainBranch($branch, (bool) ($data['is_main'] ?? $branch->is_main));
+        return DB::transaction(function () use ($id, $data) {
+            $branch = $this->repository->findOrFail($id);
+            $media = $this->extractMedia($data);
+            $branch = $this->repository->update($branch, $data);
+            $this->syncMedia($branch, $media);
+            $this->syncMainBranch($branch, (bool) ($data['is_main'] ?? $branch->is_main));
 
-        return $branch;
+            return $branch->fresh();
+        });
     }
 
     public function destroy(int $id): void
@@ -100,37 +111,77 @@ class BranchService
             ->update(['is_main' => false]);
     }
 
-    protected function preparePayload(array $data, ?Branch $branch = null): array
+    protected function extractMedia(array &$data): array
     {
-        $disk = 'public';
-
-        if (isset($data['logo']) && $data['logo'] instanceof UploadedFile) {
-            $data['logo_path'] = $data['logo']->store('branch-logos', $disk);
-            if ($branch && $branch->logo_path) {
-                Storage::disk($disk)->delete($branch->logo_path);
-            }
-        }
-
-        if (isset($data['qris']) && $data['qris'] instanceof UploadedFile) {
-            $data['qris_path'] = $data['qris']->store('branch-qris', $disk);
-            if ($branch && $branch->qris_path) {
-                Storage::disk($disk)->delete($branch->qris_path);
-            }
-        }
+        $media = [
+            'logo' => $data['logo'] ?? null,
+            'qris' => $data['qris'] ?? null,
+        ];
 
         unset($data['logo'], $data['qris']);
 
-        return $data;
+        return $media;
+    }
+
+    protected function syncMedia(Branch $branch, array $media): void
+    {
+        $disk = UploadStorage::disk();
+        $updates = [];
+
+        if (($media['logo'] ?? null) instanceof UploadedFile) {
+            $this->uploadQuotaService->assertCanUpload(
+                $media['logo'],
+                $branch->logo_path
+            );
+            $newPath = UploadPath::branchLogo((int) $branch->id, $media['logo']);
+            $storedPath = $media['logo']->storeAs(dirname($newPath), basename($newPath), $disk);
+            if ($storedPath === false) {
+                throw new \RuntimeException('Gagal mengunggah logo cabang.');
+            }
+
+            $updates['logo_path'] = $storedPath;
+            if (! empty($branch->logo_path)) {
+                foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                    Storage::disk($deleteDisk)->delete($branch->logo_path);
+                }
+            }
+        }
+
+        if (($media['qris'] ?? null) instanceof UploadedFile) {
+            $this->uploadQuotaService->assertCanUpload(
+                $media['qris'],
+                $branch->qris_path
+            );
+            $newPath = UploadPath::branchQris((int) $branch->id, $media['qris']);
+            $storedPath = $media['qris']->storeAs(dirname($newPath), basename($newPath), $disk);
+            if ($storedPath === false) {
+                throw new \RuntimeException('Gagal mengunggah QRIS cabang.');
+            }
+
+            $updates['qris_path'] = $storedPath;
+            if (! empty($branch->qris_path)) {
+                foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                    Storage::disk($deleteDisk)->delete($branch->qris_path);
+                }
+            }
+        }
+
+        if (! empty($updates)) {
+            $this->repository->update($branch, $updates);
+        }
     }
 
     protected function deleteMedia(Branch $branch): void
     {
-        $disk = 'public';
         if ($branch->logo_path) {
-            Storage::disk($disk)->delete($branch->logo_path);
+            foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                Storage::disk($deleteDisk)->delete($branch->logo_path);
+            }
         }
         if ($branch->qris_path) {
-            Storage::disk($disk)->delete($branch->qris_path);
+            foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                Storage::disk($deleteDisk)->delete($branch->qris_path);
+            }
         }
     }
 }

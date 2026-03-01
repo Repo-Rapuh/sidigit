@@ -36,7 +36,14 @@ class Table extends BaseTable
 
     public function getAvailableRolesProperty()
     {
-        return $this->roleService->all();
+        $roles = $this->roleService->all();
+        $actor = auth()->user();
+
+        if ($actor && !$actor->hasRoleSlug('superadmin')) {
+            return $roles->reject(fn ($role) => (string) ($role->slug ?? '') === 'owner')->values();
+        }
+
+        return $roles;
     }
 
     public function getAvailableBranchesProperty()

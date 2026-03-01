@@ -15,12 +15,21 @@
     <x-forms.input label="Route Name" name="form.route_name" placeholder="Route name"
         wire:model.blur="form.route_name" />
 
-    <div>
-        <x-forms.searchable-select
+    <div class="space-y-2">
+        <x-forms.input
             label="Ikon"
+            name="form.icon"
+            placeholder="Contoh: dashboard atau bi bi-receipt"
+            wire:model.blur="form.icon"
+        />
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+            Isi key ikon dari preset atau class ikon custom.
+        </p>
+        <x-forms.searchable-select
+            label="Preset Ikon (Opsional)"
             :options="$this->iconOptions"
-            placeholder="Pilih ikon"
-            wire:model.defer="form.icon"
+            placeholder="Pilih preset"
+            wire:model="form.icon"
         />
         @error('form.icon')
             <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>

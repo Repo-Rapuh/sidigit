@@ -5,6 +5,7 @@ namespace App\Livewire\Layout;
 use App\Dto\MenuItemData;
 use App\Models\Branch;
 use App\Services\MenuCacheService;
+use App\Support\UploadStorage;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -170,7 +171,7 @@ class Sidebar extends Component
             return null;
         }
 
-        $disk = 'public';
+        $disk = UploadStorage::disk();
 
         try {
             $storage = Storage::disk($disk);

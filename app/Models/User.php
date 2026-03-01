@@ -85,6 +85,6 @@ class User extends Authenticatable
 
     public function isBranchSuperAdmin(): bool
     {
-        return $this->hasRoleSlug(['administrator', 'admin', 'superadmin']);
+        return $this->hasRoleSlug(['superadmin', 'admin', 'owner']);
     }
 }

@@ -20,11 +20,23 @@ class OrderService
 {
     protected OrderRepository $repository;
     protected OrderMaterialUsageService $materialUsageService;
+    protected ProductionJobService $productionJobService;
+    protected OrderStockService $orderStockService;
+    protected AccountingAutoPostingService $autoPostingService;
 
-    public function __construct(OrderRepository $repository, OrderMaterialUsageService $materialUsageService)
+    public function __construct(
+        OrderRepository $repository,
+        OrderMaterialUsageService $materialUsageService,
+        ProductionJobService $productionJobService,
+        OrderStockService $orderStockService,
+        AccountingAutoPostingService $autoPostingService
+    )
     {
         $this->repository = $repository;
         $this->materialUsageService = $materialUsageService;
+        $this->productionJobService = $productionJobService;
+        $this->orderStockService = $orderStockService;
+        $this->autoPostingService = $autoPostingService;
     }
 
     public function query(): Builder
@@ -55,7 +67,11 @@ class OrderService
             $this->syncItems($order, $items);
             $this->syncPayments($order, $payments);
             $this->recalculateTotals($order);
-            $this->syncStockByStatus($order);
+            $this->syncAutoPostingPayments($order);
+            $this->orderStockService->syncByStatus($order);
+            $freshOrder = $order->refresh();
+            $this->productionJobService->syncByOrderStatus($freshOrder);
+            $this->autoPostingService->syncOrderAccrual($freshOrder);
             $order->statusLogs()->create([
                 'status' => $order->status,
                 'changed_by' => auth()->id(),
@@ -76,8 +92,9 @@ class OrderService
         return DB::transaction(function () use ($id, $data, $items, $payments, $revisionReason) {
             $order = $this->repository->findOrFail($id);
             $oldStatus = $order->status;
+            $canOverrideLockedOrder = auth()->user()?->can('workflow.override.locked-order') ?? false;
 
-            if ($this->isLockedStatus($oldStatus)) {
+            if ($this->isLockedStatus($oldStatus) && !$canOverrideLockedOrder) {
                 $nextStatus = (string) ($data['status'] ?? $oldStatus);
                 $this->ensureRevisionReasonIfRequired($oldStatus, $nextStatus, $revisionReason);
 
@@ -93,7 +110,10 @@ class OrderService
                     ]);
                 }
 
-                $this->syncStockByStatus($order);
+                $this->orderStockService->syncByStatus($order);
+                $freshOrder = $order->refresh();
+                $this->productionJobService->syncByOrderStatus($freshOrder);
+                $this->autoPostingService->syncOrderAccrual($freshOrder);
 
                 return $order->fresh(['customer', 'items']);
             }
@@ -106,7 +126,11 @@ class OrderService
             $this->syncPayments($order, $payments);
 
             $this->recalculateTotals($order);
-            $this->syncStockByStatus($order);
+            $this->syncAutoPostingPayments($order);
+            $this->orderStockService->syncByStatus($order);
+            $freshOrder = $order->refresh();
+            $this->productionJobService->syncByOrderStatus($freshOrder);
+            $this->autoPostingService->syncOrderAccrual($freshOrder);
 
             if ($oldStatus !== $order->status) {
                 $order->statusLogs()->create([
@@ -124,6 +148,7 @@ class OrderService
     {
         return DB::transaction(function () use ($orderId, $data) {
             $order = $this->repository->findOrFail($orderId);
+            $remainingBeforePayment = max(0, (float) $order->grand_total - (float) $order->paid_amount);
 
             $payment = Payment::create([
                 'order_id' => $order->id,
@@ -135,6 +160,7 @@ class OrderService
             ]);
 
             $this->recalculateTotals($order);
+            $this->autoPostingService->postPayment($order, $payment, $remainingBeforePayment);
 
             return $payment;
         });
@@ -145,9 +171,12 @@ class OrderService
         DB::transaction(function () use ($id) {
             $order = $this->repository->findOrFail($id);
             $this->ensureCanBeDeleted($order);
+            $paymentIds = $order->payments()->pluck('id')->all();
 
             $order->items()->delete();
             $order->payments()->delete();
+            $this->autoPostingService->deleteBySource('order-accrual', (int) $order->id);
+            $this->autoPostingService->deleteBySources('payment', $paymentIds);
             $this->repository->delete($order);
         });
     }
@@ -161,16 +190,21 @@ class OrderService
 
         DB::transaction(function () use ($ids) {
             $orders = $this->repository->query()->whereIn('id', $ids)->get();
+            $paymentIds = [];
 
             foreach ($orders as $order) {
                 $this->ensureCanBeDeleted($order);
+                $paymentIds = array_merge($paymentIds, $order->payments()->pluck('id')->all());
             }
 
             foreach ($orders as $order) {
                 $order->items()->delete();
                 $order->payments()->delete();
+                $this->autoPostingService->deleteBySource('order-accrual', (int) $order->id);
                 $this->repository->delete($order);
             }
+
+            $this->autoPostingService->deleteBySources('payment', $paymentIds);
         });
     }
 
@@ -230,7 +264,10 @@ class OrderService
                 ]);
             }
 
-            $this->syncStockByStatus($order);
+            $this->orderStockService->syncByStatus($order);
+            $freshOrder = $order->refresh();
+            $this->productionJobService->syncByOrderStatus($freshOrder);
+            $this->autoPostingService->syncOrderAccrual($freshOrder);
 
             return $order->fresh(['customer', 'items']);
         });
@@ -315,6 +352,7 @@ class OrderService
             ->where('ref_type', 'order')
             ->where('ref_id', $order->id)
             ->delete();
+        $order->productionJobs()->delete();
     }
 
     protected function syncFinishes(OrderItem $orderItem, array $finishIds): void
@@ -358,6 +396,25 @@ class OrderService
     protected function clearPayments(Order $order): void
     {
         $order->payments()->delete();
+    }
+
+    protected function syncAutoPostingPayments(Order $order): void
+    {
+        $order->refresh();
+
+        $grandTotal = (float) ($order->grand_total ?? 0);
+        $runningPaid = 0.0;
+
+        $payments = $order->payments()
+            ->orderBy('paid_at')
+            ->orderBy('id')
+            ->get();
+
+        foreach ($payments as $payment) {
+            $remainingBeforePayment = max(0, $grandTotal - $runningPaid);
+            $this->autoPostingService->postPayment($order, $payment, $remainingBeforePayment);
+            $runningPaid += (float) ($payment->amount ?? 0);
+        }
     }
 
     protected function calculateItemTotals(Product $product, ?Material $material, array $item, float $finishTotal): array
@@ -434,71 +491,6 @@ class OrderService
         return 0;
     }
 
-    protected function createStockMovement(OrderItem $orderItem, ?Material $material, string $type, string $note): void
-    {
-        if (!$material) {
-            return;
-        }
-
-        $qty = (float) $orderItem->qty;
-        $lengthCm = $orderItem->length_cm !== null ? (float) $orderItem->length_cm : null;
-        $widthCm = $orderItem->width_cm !== null ? (float) $orderItem->width_cm : null;
-
-        $usage = $this->materialUsageService->calculate(
-            $qty,
-            $lengthCm,
-            $widthCm,
-            $material->roll_width_cm !== null ? (float) $material->roll_width_cm : null,
-            $material->roll_waste_percent !== null ? (float) $material->roll_waste_percent : 0
-        );
-
-        app(StockMovementService::class)->store([
-            'material_id' => $material->id,
-            'type' => $type,
-            'qty' => $usage,
-            'unit_id' => $material->unit_id,
-            'ref_type' => 'order',
-            'ref_id' => $orderItem->order_id,
-            'notes' => $note,
-            'branch_id' => $orderItem->order?->branch_id,
-        ]);
-    }
-
-    protected function syncStockByStatus(Order $order): void
-    {
-        StockMovement::query()
-            ->where('ref_type', 'order')
-            ->where('ref_id', $order->id)
-            ->delete();
-
-        $status = $order->status;
-        $reserveStatuses = ['approval'];
-        $outStatuses = ['produksi', 'finishing', 'qc', 'siap', 'diambil', 'selesai'];
-
-        $type = null;
-        $note = null;
-
-        if (in_array($status, $reserveStatuses, true)) {
-            $type = 'reserve';
-            $note = 'Reservasi bahan untuk order';
-        } elseif (in_array($status, $outStatuses, true)) {
-            $type = 'out';
-            $note = 'Pemakaian bahan untuk order';
-        } else {
-            return;
-        }
-
-        $order->loadMissing('items.material');
-        foreach ($order->items as $orderItem) {
-            $material = $orderItem->material ?: ($orderItem->material_id ? Material::find($orderItem->material_id) : null);
-            if (!$material) {
-                continue;
-            }
-
-            $this->createStockMovement($orderItem, $material, $type, $note);
-        }
-    }
-
     protected function recalculateTotals(Order $order): void
     {
         $order->refresh();
@@ -534,14 +526,14 @@ class OrderService
     {
         return in_array($status, [
             'approval',
-            'menunggu-dp',
+            'pembayaran',
             'desain',
             'produksi',
-            'finishing',
             'qc',
             'siap',
             'diambil',
             'selesai',
+            'dibatalkan',
         ], true);
     }
 
@@ -551,14 +543,13 @@ class OrderService
             'draft' => 10,
             'quotation' => 20,
             'approval' => 30,
-            'menunggu-dp' => 40,
+            'pembayaran' => 40,
             'desain' => 50,
             'produksi' => 60,
-            'finishing' => 70,
-            'qc' => 80,
-            'siap' => 90,
-            'diambil' => 100,
-            'selesai' => 110,
+            'qc' => 70,
+            'siap' => 80,
+            'diambil' => 90,
+            'selesai' => 100,
             default => null,
         };
     }

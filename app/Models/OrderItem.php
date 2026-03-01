@@ -62,4 +62,9 @@ class OrderItem extends Model
     {
         return $this->hasMany(OrderItemFinish::class, 'order_item_id');
     }
+
+    public function productionJob()
+    {
+        return $this->hasOne(ProductionJob::class, 'order_item_id');
+    }
 }

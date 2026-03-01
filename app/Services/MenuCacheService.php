@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class MenuCacheService
 {
-    protected string $cacheVersion = 'v2';
+    protected string $cacheVersion = 'v3';
     protected $repository;
     public function __construct(MenuRepository $repository)
     {

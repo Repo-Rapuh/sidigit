@@ -1,5 +1,5 @@
 @php
-    $disk = config('filesystems.default', 'public');
+    $disk = \App\Support\UploadStorage::disk();
     $photoUrl = asset('images/default-avatar.svg');
 
     if (!empty($row->photo)) {

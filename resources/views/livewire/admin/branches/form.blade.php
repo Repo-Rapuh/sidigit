@@ -32,7 +32,7 @@
                         Logo saat ini
                     </span>
                     @php
-                        $disk = 'public';
+                        $disk = \App\Support\UploadStorage::disk();
                         $logoUrl = asset('assets/tailadmin/images/logo/logo.svg');
 
                         try {
@@ -62,7 +62,7 @@
                         QRIS saat ini
                     </span>
                     @php
-                        $disk = 'public';
+                        $disk = \App\Support\UploadStorage::disk();
                         $qrisUrl = null;
 
                         try {

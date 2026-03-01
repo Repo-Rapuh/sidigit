@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Admin\Menus;
 
-use App\Helpers\IconHelper;
 use App\Services\MenuService;
 use App\Traits\WithErrorToast;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -110,7 +110,7 @@ class MenusCreate extends Component
     {
         return view('livewire.admin.menus.create', [
             'parentMenuOptions' => $this->parentMenuOptions(),
-            'icons' => IconHelper::getIcons(),
+            'iconPresets' => $this->iconPresets(),
         ])->layoutData([
             'title' => 'Tambah Menu',
         ]);
@@ -123,6 +123,20 @@ class MenusCreate extends Component
                 'id' => $menu->id,
                 'label' => $menu->name,
             ])
+            ->toArray();
+    }
+
+    protected function iconPresets(): array
+    {
+        return collect(config('menu.icons', []))
+            ->keys()
+            ->reject(fn($key) => $key === 'default')
+            ->reject(fn($key) => Str::startsWith((string) $key, 'bi bi-'))
+            ->map(fn($key) => [
+                'id' => (string) $key,
+                'label' => (string) $key,
+            ])
+            ->values()
             ->toArray();
     }
 }

@@ -71,10 +71,22 @@ class MenuItemData extends Data
         $default = $icons['default'] ?? '';
 
         if (filled($menu->icon)) {
-            return str_contains($menu->icon, '<svg') ? $menu->icon : ($icons[$menu->icon] ?? $default);
+            if (str_contains($menu->icon, '<svg')) {
+                return $menu->icon;
+            }
+
+            if (isset($icons[$menu->icon]) && filled($icons[$menu->icon])) {
+                return $icons[$menu->icon];
+            }
+
+            return $menu->icon;
         }
 
-        return $icons[$base] ?? $default;
+        if (filled($base) && isset($icons[$base]) && filled($icons[$base])) {
+            return $icons[$base];
+        }
+
+        return $default;
     }
 
     protected static function buildRoutePatterns(?string $routeName): array

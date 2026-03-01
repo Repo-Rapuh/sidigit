@@ -15,8 +15,8 @@ class RoleSeeder extends Seeder
     {
         // Gunakan updateOrCreate agar tidak duplikat jika seeder dijalankan ulang
         Role::updateOrCreate(
-            ['name' => 'Administrator'],
-            ['name' => 'Administrator']
+            ['name' => 'Superadmin'],
+            ['name' => 'Superadmin']
         );
 
         Role::updateOrCreate(
@@ -37,6 +37,11 @@ class RoleSeeder extends Seeder
         Role::updateOrCreate(
             ['name' => 'Finishing'],
             ['name' => 'Finishing']
+        );
+
+        Role::updateOrCreate(
+            ['name' => 'Owner'],
+            ['name' => 'Owner']
         );
     }
 }

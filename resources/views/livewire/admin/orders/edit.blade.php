@@ -87,7 +87,7 @@
                                 <span wire:loading.remove wire:target="save">Simpan</span>
                                 <span wire:loading wire:target="save">Menyimpan...</span>
                             </button>
-                            <a href="{{ route('orders.index') }}" class="btn btn-secondary">Batal</a>
+                            <a href="{{ route('orders.index') }}" class="btn btn-secondary">Kembali</a>
                         @endif
                     </div>
                 </div>

@@ -17,6 +17,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Upload Filesystem Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disk khusus untuk upload user-generated files (logo, QRIS, foto, dst).
+    | Pisahkan dari "default" agar mudah diarahkan ke object storage.
+    |
+    */
+
+    'upload_disk' => env('UPLOAD_DISK', env('FILESYSTEM_DISK', 'public')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Quota (Bytes)
+    |--------------------------------------------------------------------------
+    |
+    | Quota logis untuk panel File Manager. Nilai 0 berarti tanpa batas.
+    |
+    */
+
+    'upload_quota_bytes' => (int) env('UPLOAD_QUOTA_BYTES', 0),
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Manager Cache TTL (Seconds)
+    |--------------------------------------------------------------------------
+    |
+    | Cache pendek untuk listing/storage details agar halaman File Manager
+    | tetap responsif pada bucket dengan file banyak.
+    |
+    */
+
+    'file_manager_cache_ttl_seconds' => (int) env('FILE_MANAGER_CACHE_TTL_SECONDS', 60),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

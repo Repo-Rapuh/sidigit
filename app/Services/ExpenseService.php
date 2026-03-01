@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\DB;
 class ExpenseService
 {
     protected ExpenseRepository $repository;
+    protected AccountingAutoPostingService $autoPostingService;
 
-    public function __construct(ExpenseRepository $repository)
+    public function __construct(ExpenseRepository $repository, AccountingAutoPostingService $autoPostingService)
     {
         $this->repository = $repository;
+        $this->autoPostingService = $autoPostingService;
     }
 
     public function query(): Builder
@@ -41,6 +43,7 @@ class ExpenseService
         return DB::transaction(function () use ($payload) {
             $expense = $this->repository->create($payload);
             $this->syncStock($expense, $payload);
+            $this->autoPostingService->syncExpense($expense);
 
             return $expense;
         });
@@ -60,6 +63,7 @@ class ExpenseService
                 ->delete();
 
             $this->syncStock($expense, $payload);
+            $this->autoPostingService->syncExpense($expense);
 
             return $expense;
         });
@@ -73,6 +77,7 @@ class ExpenseService
                 ->where('ref_type', 'expense')
                 ->where('ref_id', $expense->id)
                 ->delete();
+            $this->autoPostingService->deleteBySource('expense', (int) $expense->id);
             $this->repository->delete($expense);
         });
     }
@@ -89,6 +94,7 @@ class ExpenseService
                 ->where('ref_type', 'expense')
                 ->whereIn('ref_id', $ids)
                 ->delete();
+            $this->autoPostingService->deleteBySources('expense', $ids);
             $this->repository->query()->whereIn('id', $ids)->delete();
         });
     }

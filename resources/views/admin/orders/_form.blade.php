@@ -23,7 +23,7 @@
 
         @if ($isApprovalLocked)
             <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
-                Order dengan status <strong>Approval</strong> ke atas bersifat <strong>read-only</strong> di halaman ini.
+                Order dengan status <strong>Approval</strong> ke atas atau <strong>Dibatalkan</strong> bersifat <strong>read-only</strong> di halaman ini.
                 Untuk perubahan status, gunakan aksi <strong>Ubah Status</strong> dari daftar order.
             </div>
         @endif
@@ -48,10 +48,9 @@
                         ['value' => 'draft', 'label' => 'Draft'],
                         ['value' => 'quotation', 'label' => 'Quotation'],
                         ['value' => 'approval', 'label' => 'Approval Customer'],
-                        ['value' => 'menunggu-dp', 'label' => 'Menunggu DP'],
+                        ['value' => 'pembayaran', 'label' => 'Pembayaran'],
                         ['value' => 'desain', 'label' => 'Desain'],
                         ['value' => 'produksi', 'label' => 'Produksi'],
-                        ['value' => 'finishing', 'label' => 'Finishing'],
                         ['value' => 'qc', 'label' => 'QC'],
                         ['value' => 'siap', 'label' => 'Siap Diambil/Dikirim'],
                         ['value' => 'diambil', 'label' => 'Diambil'],
@@ -163,7 +162,8 @@
                         <div>
                             <div class="{{ $labelRowClass }}">
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Bahan @if ($materialRequired)
+                                    Bahan
+                                    @if ($materialRequired)
                                         <span class="text-red-500">*</span>
                                     @endif
                                 </label>

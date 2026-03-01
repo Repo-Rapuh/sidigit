@@ -41,7 +41,7 @@
                         Foto saat ini
                     </span>
                     @php
-                        $disk = config('filesystems.default', 'public');
+                        $disk = \App\Support\UploadStorage::disk();
                         $currentPhotoUrl = asset('images/default-avatar.svg');
 
                         if (!empty($currentPhoto)) {

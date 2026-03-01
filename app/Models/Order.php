@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\OrderTrackingToken;
 use App\Traits\LogsAllActivity;
 use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -64,5 +65,20 @@ class Order extends Model
     public function statusLogs()
     {
         return $this->hasMany(OrderStatusLog::class, 'order_id');
+    }
+
+    public function productionJobs()
+    {
+        return $this->hasMany(ProductionJob::class, 'order_id');
+    }
+
+    public function getTrackingTokenAttribute(): string
+    {
+        return OrderTrackingToken::encode((int) $this->id);
+    }
+
+    public function getTrackingUrlAttribute(): string
+    {
+        return route('orders.track.public', ['id_order_encrypted' => $this->tracking_token]);
     }
 }

@@ -53,7 +53,7 @@ class Edit extends Component
         $this->order_date = $orderModel->order_date?->format('Y-m-d') ?? now()->format('Y-m-d');
         $this->deadline = $orderModel->deadline?->format('Y-m-d');
         $this->notes = $orderModel->notes;
-        $this->isApprovalLocked = $this->isLockedStatus($orderModel->status);
+        $this->isApprovalLocked = $this->isLockedStatus($orderModel->status) && !$this->canOverrideLockedOrder();
 
         $this->items = $orderModel->items->map(function ($item) {
             return [
@@ -88,7 +88,7 @@ class Edit extends Component
         $this->setPageMeta(
             $this->isApprovalLocked ? 'Lihat Order' : 'Edit Order',
             $this->isApprovalLocked
-                ? 'Order status approval ke atas bersifat read-only. Ubah status melalui aksi di daftar order.'
+                ? 'Order status approval ke atas atau dibatalkan bersifat read-only. Ubah status melalui aksi di daftar order.'
                 : 'Perbarui data order dan item.',
             [
                 ['label' => 'Dashboard', 'url' => Route::has('dashboard') ? route('dashboard') : '#', 'icon' => true],
@@ -181,7 +181,7 @@ class Edit extends Component
             if ($this->isApprovalLocked) {
                 $this->dispatch(
                     'toast',
-                    message: 'Order status Approval ke atas hanya dapat dilihat. Ubah status lewat aksi pada daftar order.',
+                    message: 'Order status Approval ke atas atau Dibatalkan hanya dapat dilihat. Ubah status lewat aksi pada daftar order.',
                     type: 'warning'
                 );
                 return;
@@ -220,15 +220,20 @@ class Edit extends Component
     {
         return in_array($status, [
             'approval',
-            'menunggu-dp',
+            'pembayaran',
             'desain',
             'produksi',
-            'finishing',
             'qc',
             'siap',
             'diambil',
             'selesai',
+            'dibatalkan',
         ], true);
+    }
+
+    protected function canOverrideLockedOrder(): bool
+    {
+        return auth()->user()?->can('workflow.override.locked-order') ?? false;
     }
 
     public function makeQuotation(): void
@@ -268,7 +273,7 @@ class Edit extends Component
     protected function syncStatusState(string $status): void
     {
         $this->status = $status;
-        $this->isApprovalLocked = $this->isLockedStatus($status);
+        $this->isApprovalLocked = $this->isLockedStatus($status) && !$this->canOverrideLockedOrder();
     }
 
     public function render()

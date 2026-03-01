@@ -70,7 +70,7 @@
                 <button @click="open = !open"
                     class="flex items-center gap-3 rounded-full border border-transparent px-2 py-1 transition hover:bg-gray-100 dark:hover:bg-gray-800">
                     <div class="hidden text-right sm:block">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $user?->name ?? 'Administrator' }}</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $user?->name ?? 'Superadmin' }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $user?->email ?? 'admin@example.com' }}</p>
                     </div>
                     <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-gray-200 dark:border-gray-700">
@@ -89,7 +89,7 @@
                 <div x-cloak x-show="open" x-transition
                     class="absolute right-0 mt-3 w-56 rounded-xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
                     <div class="mb-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-600 dark:bg-white/[0.05] dark:text-gray-300">
-                        <p class="font-medium text-gray-900 dark:text-white">{{ $user?->name ?? 'Administrator' }}</p>
+                        <p class="font-medium text-gray-900 dark:text-white">{{ $user?->name ?? 'Superadmin' }}</p>
                         @if ($user?->email)
                             <p>{{ $user->email }}</p>
                         @endif

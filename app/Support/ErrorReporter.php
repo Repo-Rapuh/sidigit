@@ -35,8 +35,8 @@ class ErrorReporter
             return false;
         }
 
-        $adminSlugs = ['administrator', 'admin', 'super-admin', 'superadmin'];
-        $adminNames = ['administrator', 'admin', 'super admin', 'superadmin'];
+        $adminSlugs = ['superadmin', 'super-admin', 'admin', 'owner'];
+        $adminNames = ['superadmin', 'super admin', 'admin', 'owner'];
 
         return $user->roles()
             ->where(function ($query) use ($adminSlugs, $adminNames) {

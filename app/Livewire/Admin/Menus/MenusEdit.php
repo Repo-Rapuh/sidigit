@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Admin\Menus;
 
-use App\Helpers\IconHelper;
 use App\Services\MenuService;
 use App\Traits\WithErrorToast;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -80,7 +80,7 @@ class MenusEdit extends Component
     {
         return view('livewire.admin.menus.edit', [
             'parentMenuOptions' => $this->parentMenuOptions(),
-            'icons' => IconHelper::getIcons(),
+            'iconPresets' => $this->iconPresets(),
         ])->layoutData([
             'title' => 'Edit Menu',
         ]);
@@ -93,6 +93,20 @@ class MenusEdit extends Component
                 'id' => $menu->id,
                 'label' => $menu->name,
             ])
+            ->toArray();
+    }
+
+    protected function iconPresets(): array
+    {
+        return collect(config('menu.icons', []))
+            ->keys()
+            ->reject(fn($key) => $key === 'default')
+            ->reject(fn($key) => Str::startsWith((string) $key, 'bi bi-'))
+            ->map(fn($key) => [
+                'id' => (string) $key,
+                'label' => (string) $key,
+            ])
+            ->values()
             ->toArray();
     }
 }

@@ -202,11 +202,15 @@
 }
 
 @utility menu-item-icon-active {
-	@apply fill-brand-500 dark:fill-brand-400;
+	@apply text-brand-500 dark:text-brand-400;
 }
 
 @utility menu-item-icon-inactive {
-	@apply fill-gray-500 group-hover:fill-gray-700 dark:fill-gray-400 dark:group-hover:fill-gray-300;
+	@apply text-gray-500 group-hover:text-brand-500 dark:text-gray-400 dark:group-hover:text-brand-400;
+}
+
+@utility menu-item-icon {
+	@apply flex h-6 w-6 shrink-0 items-center justify-center;
 }
 
 @utility menu-item-arrow {
@@ -222,7 +226,7 @@
 }
 
 @utility menu-dropdown-item {
-	@apply text-theme-sm relative flex items-center gap-3 rounded-lg px-3 py-2.5 font-medium;
+	@apply text-theme-sm relative flex items-center rounded-xl px-4 py-2.5 font-medium transition-colors;
 }
 
 @utility menu-dropdown-item-active {
@@ -230,7 +234,11 @@
 }
 
 @utility menu-dropdown-item-inactive {
-	@apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+	@apply text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-white/90 dark:hover:bg-white/5 dark:hover:text-white;
+}
+
+@utility menu-dropdown-panel {
+	@apply mt-1 flex-col gap-1 pl-9;
 }
 
 @utility menu-dropdown-badge {

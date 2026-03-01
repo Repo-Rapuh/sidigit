@@ -3,8 +3,10 @@
 namespace App\Livewire\Forms;
 
 use App\Models\User;
+use App\Models\Role;
 use App\Services\UserService;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Form;
 
@@ -127,6 +129,7 @@ class UserForm extends Form
     public function store(UserService $service): User
     {
         $this->validate();
+        $this->ensureOwnerRoleCanBeAssigned();
         if (!in_array($this->branch_id, $this->branch_ids, true)) {
             $this->branch_ids[] = $this->branch_id;
         }
@@ -149,6 +152,7 @@ class UserForm extends Form
     public function update(UserService $service): User
     {
         $this->validate();
+        $this->ensureOwnerRoleCanBeAssigned();
         if (!in_array($this->branch_id, $this->branch_ids, true)) {
             $this->branch_ids[] = $this->branch_id;
         }
@@ -170,5 +174,30 @@ class UserForm extends Form
         $service->syncBranches($user->id, $this->branch_ids);
 
         return $user;
+    }
+
+    protected function ensureOwnerRoleCanBeAssigned(): void
+    {
+        if (!$this->role_id) {
+            return;
+        }
+
+        $role = Role::query()->select('slug')->find($this->role_id);
+        if (!$role || $role->slug !== 'owner') {
+            return;
+        }
+
+        $actor = auth()->user();
+        if (!$actor) {
+            return;
+        }
+
+        if ($actor->hasRoleSlug('superadmin')) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'role_id' => 'Role Owner hanya dapat ditetapkan oleh Superadmin.',
+        ]);
     }
 }

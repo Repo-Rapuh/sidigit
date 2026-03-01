@@ -5,17 +5,24 @@ namespace App\Services;
 use App\Enums\EmployeeStatus;
 use App\Models\Employee;
 use App\Repositories\EmployeeRepository;
+use App\Support\BranchContext;
+use App\Support\UploadPath;
+use App\Support\UploadStorage;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class EmployeeService
 {
     protected $repository;
-    public function __construct(EmployeeRepository $repository)
+    protected UploadQuotaService $uploadQuotaService;
+
+    public function __construct(EmployeeRepository $repository, UploadQuotaService $uploadQuotaService)
     {
         $this->repository = $repository;
+        $this->uploadQuotaService = $uploadQuotaService;
     }
 
     public function getPaginated(): LengthAwarePaginator
@@ -30,17 +37,21 @@ class EmployeeService
 
     public function store(array $data): Employee
     {
-        $data = $this->preparePayload($data);
+        return DB::transaction(function () use ($data) {
+            $data = $this->preparePayload($data);
 
-        return $this->repository->create($data);
+            return $this->repository->create($data);
+        });
     }
 
     public function update(int $id, array $data): Employee
     {
-        $employee = $this->repository->findOrFail($id);
-        $data = $this->preparePayload($data, $employee);
+        return DB::transaction(function () use ($id, $data) {
+            $employee = $this->repository->findOrFail($id);
+            $data = $this->preparePayload($data, $employee);
 
-        return $this->repository->update($employee, $data);
+            return $this->repository->update($employee, $data);
+        });
     }
 
     public function destroy(int $id): void
@@ -48,8 +59,9 @@ class EmployeeService
         $employee = $this->repository->findOrFail($id);
 
         if ($employee->photo) {
-            $disk = config('filesystems.default', 'public');
-            Storage::disk($disk)->delete($employee->photo);
+            foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                Storage::disk($deleteDisk)->delete($employee->photo);
+            }
         }
 
         $this->repository->delete($employee);
@@ -65,8 +77,9 @@ class EmployeeService
         $employees = $this->repository->query()->whereIn('id', $ids)->get();
         foreach ($employees as $employee) {
             if ($employee->photo) {
-                $disk = config('filesystems.default', 'public');
-                Storage::disk($disk)->delete($employee->photo);
+                foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                    Storage::disk($deleteDisk)->delete($employee->photo);
+                }
             }
         }
 
@@ -89,11 +102,25 @@ class EmployeeService
     protected function preparePayload(array $data, ?Employee $employee = null): array
     {
         if (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
-            $disk = config('filesystems.default', 'public');
-            $data['photo'] = $data['photo']->store('employee-photos', $disk);
+            $disk = UploadStorage::disk();
+            $branchId = $this->resolveBranchId($employee, $data);
+            $this->uploadQuotaService->assertCanUpload(
+                $data['photo'],
+                $employee?->photo
+            );
+            $newPath = UploadPath::employeePhoto($branchId, $data['photo']);
+            $storedPath = $data['photo']->storeAs(dirname($newPath), basename($newPath), $disk);
+
+            if ($storedPath === false) {
+                throw new \RuntimeException('Gagal mengunggah foto karyawan.');
+            }
+
+            $data['photo'] = $storedPath;
 
             if ($employee && $employee->photo) {
-                Storage::disk($disk)->delete($employee->photo);
+                foreach (UploadStorage::deletionDisks() as $deleteDisk) {
+                    Storage::disk($deleteDisk)->delete($employee->photo);
+                }
             }
         } else {
             unset($data['photo']);
@@ -104,5 +131,23 @@ class EmployeeService
         }
 
         return $data;
+    }
+
+    protected function resolveBranchId(?Employee $employee, array $data): int
+    {
+        if (! empty($employee?->branch_id)) {
+            return (int) $employee->branch_id;
+        }
+
+        if (! empty($data['branch_id'])) {
+            return (int) $data['branch_id'];
+        }
+
+        $activeBranchId = BranchContext::activeBranchId();
+        if (! empty($activeBranchId)) {
+            return (int) $activeBranchId;
+        }
+
+        return 1;
     }
 }

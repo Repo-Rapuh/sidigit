@@ -1,7 +1,4 @@
-
 # 📝 TODO — MVP System
-
-
 ## 🧭 Multi-Branch (Implementasi Awal)
 ### Ringkasan
 - **Model cabang**: 1 company = 1 database, dengan cabang induk (`is_main`).
@@ -157,3 +154,6 @@
 - Maintainability `route.permission`: mapping di `config/route_permissions.php` **wajib ditambah manual** jika (1) nama route non-standar, contoh `stocks.in`/`orders.invoice.pdf`, (2) resource baru belum ada di `resource_prefixes`, atau (3) action baru belum ada di `resource_actions`.
 - Jika route mengikuti pola standar dan prefix+action sudah terdaftar, mapping permission akan ter-resolve otomatis.
 -
+
+
+kanban dari antrian atau desain ke produksi tidak men-trigger Stock Out (Hanya bisa via Button Kirim Produksi)

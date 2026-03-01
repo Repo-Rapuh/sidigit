@@ -20,21 +20,21 @@ class EmployeeSeeder extends Seeder
         ]);
 
         Employee::updateOrCreate([
-            'email' => 'desainer@example.com',
+            'email' => 'desainer@gmail.com',
         ], [
             'name' => 'Desainer',
             'address' => 'Leuwiliang',
-            'phone_number' => '0800000001',
+            'phone_number' => '0800000002',
             'salary' => 0,
             'status' => 'active',
         ]);
 
         Employee::updateOrCreate([
-            'email' => 'operator@example.com',
+            'email' => 'operator@gmail.com',
         ], [
             'name' => 'Operator',
             'address' => 'Leuwiliang',
-            'phone_number' => '0800000001',
+            'phone_number' => '0800000003',
             'salary' => 0,
             'status' => 'active',
         ]);

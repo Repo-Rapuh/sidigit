@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Admin\Menus;
 
-use App\Helpers\IconHelper;
 use App\Livewire\BaseTable;
 use App\Livewire\Forms\MenuForm;
 use App\Services\MenuService;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class Table extends BaseTable
@@ -31,7 +31,16 @@ class Table extends BaseTable
 
     public function getIconOptionsProperty(): array
     {
-        return IconHelper::getIcons();
+        return collect(config('menu.icons', []))
+            ->keys()
+            ->reject(fn($key) => $key === 'default')
+            ->reject(fn($key) => Str::startsWith((string) $key, 'bi bi-'))
+            ->map(fn($key) => [
+                'id' => (string) $key,
+                'label' => (string) $key,
+            ])
+            ->values()
+            ->toArray();
     }
 
     protected function resetForm(): void

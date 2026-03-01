@@ -66,10 +66,9 @@
             'draft' => 'Draft',
             'quotation' => 'Quotation',
             'approval' => 'Approved',
-            'menunggu-dp' => 'Menunggu DP',
+            'pembayaran' => 'Pembayaran',
             'desain' => 'Desain',
             'produksi' => 'Produksi',
-            'finishing' => 'Finishing',
             'qc' => 'QC',
             'siap' => 'Siap Diambil/Dikirim',
             'diambil' => 'Diambil',
@@ -118,7 +117,7 @@
         $branch = $order->branch;
         $qrisUrl = null;
         if (!empty($branch?->qris_path)) {
-            $disk = 'public';
+            $disk = \App\Support\UploadStorage::disk();
             try {
                 $storage = Storage::disk($disk);
                 $driver = config("filesystems.disks.{$disk}.driver");
