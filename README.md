@@ -697,6 +697,7 @@
   - `permissionSlugs()`
   - `menuIds()`
   - `hasPermissionSlug()`
+- Helper akses user sekarang berbasis satu snapshot role (`accessRoles()`) sehingga query `roles` tidak lagi terduplikasi saat membaca menu + permission dalam request yang sama.
 - `MenuCacheService` diperbarui agar memakai snapshot akses dari model `User` (menu + permission) dan tidak lagi menjalankan query relasi role berulang untuk membentuk cache key sidebar.
 
 # Next Project
