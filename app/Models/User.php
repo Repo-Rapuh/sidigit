@@ -11,12 +11,21 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Traits\LogsAllActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use RichanFongdasen\EloquentBlameable\BlameableTrait;
 
 class User extends Authenticatable
 {
     // 2. Tambahkan trait ini di dalam class
     use HasFactory, Notifiable, LogsAllActivity, SoftDeletes, BlameableTrait;
+
+    protected ?Collection $cachedRoleSlugs = null;
+
+    protected ?Collection $cachedPermissionSlugs = null;
+
+    protected ?Collection $cachedMenuIds = null;
+
+    protected ?Collection $cachedAccessRoles = null;
 
 
     /**
@@ -78,13 +87,94 @@ class User extends Authenticatable
 
     public function hasRoleSlug(array|string $slugs): bool
     {
-        $slugs = (array) $slugs;
+        $lookup = collect((array) $slugs)
+            ->filter(fn ($slug) => filled($slug))
+            ->map(fn ($slug) => (string) $slug);
 
-        return $this->roles()->whereIn('slug', $slugs)->exists();
+        if ($lookup->isEmpty()) {
+            return false;
+        }
+
+        return $this->roleSlugs()->intersect($lookup)->isNotEmpty();
+    }
+
+    public function hasPermissionSlug(string $slug): bool
+    {
+        if (! filled($slug)) {
+            return false;
+        }
+
+        return $this->permissionSlugs()->contains($slug);
     }
 
     public function isBranchSuperAdmin(): bool
     {
         return $this->hasRoleSlug(['superadmin', 'admin', 'owner']);
+    }
+
+    public function roleSlugs(): Collection
+    {
+        if ($this->cachedRoleSlugs instanceof Collection) {
+            return $this->cachedRoleSlugs;
+        }
+
+        $this->cachedRoleSlugs = $this->accessRoles()
+            ->pluck('slug')
+            ->filter()
+            ->map(fn ($slug) => (string) $slug)
+            ->values();
+
+        return $this->cachedRoleSlugs;
+    }
+
+    public function permissionSlugs(): Collection
+    {
+        if ($this->cachedPermissionSlugs instanceof Collection) {
+            return $this->cachedPermissionSlugs;
+        }
+
+        $this->cachedPermissionSlugs = $this->accessRoles()
+            ->flatMap(fn ($role) => $role->permissions)
+            ->pluck('slug')
+            ->filter()
+            ->map(fn ($slug) => (string) $slug)
+            ->unique()
+            ->values();
+
+        return $this->cachedPermissionSlugs;
+    }
+
+    public function menuIds(): Collection
+    {
+        if ($this->cachedMenuIds instanceof Collection) {
+            return $this->cachedMenuIds;
+        }
+
+        $this->cachedMenuIds = $this->accessRoles()
+            ->flatMap(fn ($role) => $role->menus)
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        return $this->cachedMenuIds;
+    }
+
+    protected function accessRoles(): Collection
+    {
+        if ($this->cachedAccessRoles instanceof Collection) {
+            return $this->cachedAccessRoles;
+        }
+
+        $this->cachedAccessRoles = $this->roles()
+            ->select(['roles.id', 'roles.slug'])
+            ->with([
+                'permissions:id,slug',
+                'menus:id',
+            ])
+            ->get();
+
+        return $this->cachedAccessRoles;
     }
 }
