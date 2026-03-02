@@ -63,34 +63,16 @@ class MenuCacheService
 
     protected function allowedMenuIds(User $user): Collection
     {
-        return $user->roles()
-            ->with('menus:id,parent_id')
-            ->get()
-            ->flatMap(fn ($role) => $role->menus)
-            ->pluck('id')
-            ->unique()
-            ->values();
+        return $user->menuIds();
     }
 
     protected function cacheKey(User $user): string
     {
-        $menuIds = $user->roles()
-            ->with('menus:id')
-            ->get()
-            ->flatMap(fn ($role) => $role->menus)
-            ->pluck('id')
-            ->filter()
-            ->unique()
+        $menuIds = $user->menuIds()
             ->sort()
             ->implode('|');
 
-        $permissions = $user->roles()
-            ->with('permissions:id,slug')
-            ->get()
-            ->flatMap(fn ($role) => $role->permissions)
-            ->pluck('slug')
-            ->filter()
-            ->unique()
+        $permissions = $user->permissionSlugs()
             ->sort()
             ->implode('|');
 

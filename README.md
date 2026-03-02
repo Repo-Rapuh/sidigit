@@ -687,7 +687,17 @@
     - halaman edit tampil read-only untuk order `dibatalkan`
     - update non-status diabaikan untuk user tanpa override `workflow.override.locked-order`
     - opsi `dibatalkan` tampil di modal ubah status (daftar order)
-- `AuthServiceProvider` ditambah guard `Schema::hasTable('permissions')` agar test environment tidak gagal saat bootstrap sebelum migrasi selesai.
+- `AuthServiceProvider` menggunakan pendekatan `Gate::before` berbasis ability slug sehingga bootstrap tidak lagi membutuhkan preload seluruh tabel permission.
+
+## Optimisasi Query Auth & Sidebar
+- Optimisasi akses permission dilakukan di `AuthServiceProvider` menggunakan `Gate::before` berbasis slug ability (`resource.action`) tanpa me-load seluruh tabel `permissions` setiap request.
+- Pengecekan role superadmin/admin sekarang memanfaatkan cache in-request pada model `User` (`hasRoleSlug`) sehingga query `exists` berulang di setiap `@can`/middleware berkurang drastis.
+- Ditambahkan helper cache in-request di model `User`:
+  - `roleSlugs()`
+  - `permissionSlugs()`
+  - `menuIds()`
+  - `hasPermissionSlug()`
+- `MenuCacheService` diperbarui agar memakai snapshot akses dari model `User` (menu + permission) dan tidak lagi menjalankan query relasi role berulang untuk membentuk cache key sidebar.
 
 # Next Project
 - Web COmpany Profile
